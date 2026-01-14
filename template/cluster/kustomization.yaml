@@ -7,8 +7,8 @@ generatorOptions:
   disableNameSuffixHash: true
 resources:
   - adopted
-  - aws
   - docker
   - remote
+  # - aws
   # - openstack
   # - vsphere
