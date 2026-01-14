@@ -80,6 +80,28 @@ spec:
       #       #       secretKeyRef:
       #       #         name: cloudflare-api-token
       #       #         key: cf-api-token
+      # FIXME: envoy gwapi domain
+      # - template: envoy-1-0-0
+      #   name: gwapi
+      #   namespace: kube-system
+      #   values: |
+
+      #     gateway-helm:
+      #       config:
+      #         envoyGateway:
+      #           gateway:
+      #             controllerName: gateway.envoyproxy.io/gatewayclass-controller
+      #           provider:
+      #             type: Kubernetes
+      #           logging:
+      #             level:
+      #               default: info
+      #       service:
+      #         type: LoadBalancer
+      #         annotations:
+      #           external-dns.alpha.kubernetes.io/hostname: local
+      #       topologyInjector:
+      #         enabled: true
       # FIXME: gwapi hostname & issuer
       # - template: gateway-1-0-2
       #   name: gateway
