@@ -7,7 +7,7 @@ spec:
   clusterSelector:
     matchLabels:
       app.kubernetes.io/managed-by: Helm
-      app.kubernetes.io/mcs: addon
+      app.kubernetes.io/addon: enabled
   serviceSpec:
     priority: 100
     services:
