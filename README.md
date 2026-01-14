@@ -93,31 +93,70 @@ Deploy KCM using Helm:
 
 ```shell
 kcm_templates_url=oci://ghcr.io/labsonline/charts/kcm
-kcm_version=1.2.0
+kcm_version=1.3.5
 
-# install crds
-kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' | kubectl apply -f -
-kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' | kubectl apply -f -
+# TODO: install crds
+# kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' | kubectl apply -f -
+# kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' | kubectl apply -f -
 
-# deploy kcm
+# create kcm namespace
+kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
+
+# create NEXTAUTH_SECRET
+NEXTAUTH_SECRET=$(openssl rand -hex 8)
+kubectl create secret generic k0rdent-nextauth \
+  --namespace kcm-system \
+  --from-literal=NEXTAUTH_SECRET=$NEXTAUTH_SECRET \
+  --dry-run=client -o yaml | kubectl apply -f -
+
+# create values file for kcm
 cat <<eof >/tmp/values.kcm.yaml
+controller: &controller
+  templatesRepoURL: oci://registry.mirantis.com/k0rdent-enterprise/charts # Enterprise
+  # templatesRepoURL: oci://ghcr.io/k0rdent/kcm/charts                      # OSS
+global: &global
+  controller:
+    <<: *controller
+  # regional:
+  #   cert-manager:
+  #     config:
+  #       apiVersion: controller.config.cert-manager.io/v1alpha1
+  #       kind: ControllerConfiguration
+  #       enableGatewayAPI: true
 kcm:
-  cert-manager:
-    config:
-      apiVersion: controller.config.cert-manager.io/v1alpha1
-      kind: ControllerConfiguration
-      enableGatewayAPI: true
+  <<: *global
+  install: false
+k0rdent-enterprise:
+  <<: *global
+  install: true
+  k0rdent-ui:
+    enabled: true
 eof
 
-helm upgrade kcm $kcm_templates_url/kcm \
-  --install --atomic --create-namespace \
+# deploy kcm
+helm upgrade kcm $kcm_templates_url \
+  --install --rollback-on-failure --create-namespace \
   --namespace kcm-system \
   --values /tmp/values.kcm.yaml \
   --version $kcm_version \
   --wait
 
-# deploy kcm resource
-cat <<eof >/tmp/values.kcm.yaml
+# create values file for kcm resource
+cat <<eof >/tmp/values.kcmres.yaml
+controller:
+  templatesRepoURL: oci://registry.mirantis.com/k0rdent-enterprise/charts # Enterprise
+  # templatesRepoURL: oci://ghcr.io/k0rdent/kcm/charts                      # OSS
+version: 1.2.2  # Enterprise
+# version: 1.6.0  # OSS
+templates:
+  # Enterprise
+  capi: cluster-api-1-0-7
+  kcm: k0rdent-enterprise-1-2-2
+  regional: kcm-regional-1-2-2
+  # OSS
+  # capi: cluster-api-1-0-9
+  # kcm: kcm-1-6-0
+  # regional: kcm-regional-1-6-0
 management:
   enabled: true
   access:
@@ -137,20 +176,27 @@ management:
 release:
   enabled: true
   providers:
-    - name: cluster-api-provider-k0sproject-k0smotron
-      template: cluster-api-provider-k0sproject-k0smotron-1-0-6
-    - name: cluster-api-provider-docker
-      template: cluster-api-provider-docker-1-0-2
     - name: projectsveltos
-      template: projectsveltos-0-57-2
-kcm:
-  install: false
+      template: projectsveltos-1-1-1
+    # Enterprise
+    - name: cluster-api-provider-docker
+      template: cluster-api-provider-docker-1-0-5
+    - name: cluster-api-provider-k0sproject-k0smotron
+      template: cluster-api-provider-k0sproject-k0smotron-1-0-12
+    # OSS
+    # - name: cluster-api-provider-docker
+    #   template: cluster-api-provider-docker-1-0-7
+    # - name: cluster-api-provider-k0sproject-k0smotron
+    #   template: cluster-api-provider-k0sproject-k0smotron-1-0-14
+    # - name: cluster-api-provider-docker
+    #   template: cluster-api-provider-docker-1-0-7
 eof
 
-helm upgrade kcm-resource $kcm_templates_url/kcm \
-  --install --atomic --create-namespace \
+# deploy kcm resource
+helm upgrade kcm-resource $kcm_templates_url \
+  --install --rollback-on-failure --create-namespace \
   --namespace kcm-system \
-  --values /tmp/values.kcm.yaml \
+  --values /tmp/values.kcmres.yaml \
   --version $kcm_version \
   --wait
 
