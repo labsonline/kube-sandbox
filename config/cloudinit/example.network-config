@@ -1,0 +1,8 @@
+version: 2
+ethernets:
+  oam:
+    dhcp4: true
+    dhcp6: true
+    set-name: oam
+    match:
+      macaddress: 00:1C:42:76:B4:63
