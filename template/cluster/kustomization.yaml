@@ -6,9 +6,9 @@ buildMetadata:
 generatorOptions:
   disableNameSuffixHash: true
 resources:
-  - adopted
   - docker
   - remote
   # - aws
   # - openstack
   # - vsphere
+  - adopted.yaml
