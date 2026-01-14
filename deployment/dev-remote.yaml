@@ -60,3 +60,6 @@ spec:
     #                 name: general
   serviceSpec:
     services: []
+    # - template: openstack-1-0-0
+    #   name: openstack
+    #   namespace: kcm-system

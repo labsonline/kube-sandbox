@@ -5,7 +5,7 @@ buildMetadata:
 generatorOptions:
   disableNameSuffixHash: true
 resources:
-  # - adopted
+  - adopted
   - dev-docker.yaml
   # - dev-aws.yaml
   # - dev-openstack.yaml

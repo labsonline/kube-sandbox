@@ -31,3 +31,6 @@ spec:
     # - template: cni-1-0-0
     #   name: cni
     #   namespace: kcm-system
+    # - template: csi-1-0-0
+    #   name: csi
+    #   namespace: kcm-system
