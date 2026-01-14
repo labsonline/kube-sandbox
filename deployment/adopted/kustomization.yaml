@@ -1,0 +1,16 @@
+---
+namespace: default
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+secretGenerator:
+  - name: adopted-cluster-kubeconfig
+resources:
+  - credential.yaml
+  - dev-adopted.yaml
