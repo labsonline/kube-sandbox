@@ -1,0 +1,27 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-aws
+  namespace: default
+spec:
+  template: aws-standalone-cp-1-0-10
+  credential: aws-cluster-cred
+  propagateCredentials: false
+  config:
+    controlPlaneNumber: 1
+    clusterLabels: {}
+    # k0s:
+    #   api:
+    #     sans:
+    #       - aws.kubernetes.local
+    #   network:
+    #     provider: custom
+    #   featureGates:
+    #     - name: UserNamespacesSupport
+    #       enabled: true
+  serviceSpec:
+    services: []
+    # - template: knative-1-0-0
+    #   name: knative
+    #   namespace: kcm-system
