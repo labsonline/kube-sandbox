@@ -186,19 +186,19 @@ management:
   access:
     enabled: true
     rules:
-      - clusterTemplateChains:
+      - targetNamespaces:
+          list:
+            - default
+        credentials:
+          - docker-cluster-cred
+          - remote-cluster-cred
+        clusterTemplateChains:
           - adopted-cluster
           - docker-hosted-cp
           - remote-cluster
-        targetNamespaces:
-          list:
-            - default
-      - serviceTemplateChains:
+        serviceTemplateChains:
           - core
           - addon
-        targetNamespaces:
-          list:
-            - default
   providers:
     - name: cluster-api-provider-docker
     - name: cluster-api-provider-k0sproject-k0smotron
