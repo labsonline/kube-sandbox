@@ -5,12 +5,14 @@ metadata:
   name: dev-aws
   namespace: default
 spec:
-  template: aws-standalone-cp-1-0-10
+  template: aws-standalone-cp-1-0-20
   credential: aws-cluster-cred
   propagateCredentials: false
   config:
     controlPlaneNumber: 1
-    clusterLabels: {}
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
     # k0s:
     #   api:
     #     sans:
@@ -22,6 +24,6 @@ spec:
     #       enabled: true
   serviceSpec:
     services: []
-    # - template: knative-1-0-0
-    #   name: knative
+    # - template: cni-1-0-0
+    #   name: cni
     #   namespace: kcm-system
