@@ -2,7 +2,7 @@
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: MultiClusterService
 metadata:
-  name: mgmt-mcs
+  name: mgmt
 spec:
   clusterSelector:
     matchLabels:
@@ -10,7 +10,10 @@ spec:
       sveltos-agent: present
   serviceSpec:
     priority: 100
-    services: #[]
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
       # - template: external-snapshotter-crd
       #   name: external-snapshotter-crd
       #   namespace: kube-system
