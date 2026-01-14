@@ -5,4 +5,5 @@ metadata:
   name: remote-cluster
 spec:
   supportedTemplates:
-    - name: remote-cluster-1-0-8
+    - name: remote-cluster-1-0-18
+    - name: remote-cluster-1-0-19
