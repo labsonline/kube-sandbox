@@ -7,3 +7,6 @@ generatorOptions:
 resources:
   - mgmt
   - global.yaml
+  - addon.yaml
+  - knative.yaml
+  # - crd.yaml

@@ -1,21 +1,3 @@
-# ---
-# apiVersion: k0rdent.mirantis.com/v1beta1
-# kind: MultiClusterService
-# metadata:
-#   name: crd
-# spec:
-#   clusterSelector:
-#     matchLabels:
-#       app.kubernetes.io/managed-by: Helm
-#   serviceSpec:
-#     priority: 100
-#     services:
-#       - template: external-snapshotter-crd
-#         name: external-snapshotter-crd
-#         namespace: kube-system
-#       # - template: gateway-api-crd
-#       #   name: gateway-api-crd
-#       #   namespace: kube-system
 ---
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: MultiClusterService
@@ -109,6 +91,28 @@ spec:
             #       secretKeyRef:
             #         name: cloudflare-api-token
             #         key: cf-api-token
+      # FIXME: envoy gwapi domain
+      - template: envoy-1-0-0
+        name: gwapi
+        namespace: kube-system
+        values: |
+
+          gateway-helm:
+            config:
+              envoyGateway:
+                gateway:
+                  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+                provider:
+                  type: Kubernetes
+                logging:
+                  level:
+                    default: info
+            service:
+              type: LoadBalancer
+              annotations:
+                external-dns.alpha.kubernetes.io/hostname: local
+            topologyInjector:
+              enabled: true
       # FIXME: gwapi hostname & issuer
       - template: gateway-1-0-2
         name: gateway
