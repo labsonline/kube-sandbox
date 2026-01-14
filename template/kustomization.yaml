@@ -11,4 +11,4 @@ resources:
   - source
   - addon.yaml
   - core.yaml
-  - crd.yaml
+  # - crd.yaml

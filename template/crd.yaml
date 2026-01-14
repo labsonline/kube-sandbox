@@ -6,6 +6,6 @@ metadata:
 spec:
   supportedTemplates:
     - name: external-snapshotter-crd
-    - name: gateway-api-crd
-    - name: gateway-api-experimental-crd
-    - name: prometheus-operator-crd
+    # - name: gateway-api-crd
+    # - name: gateway-api-experimental-crd
+    # - name: prometheus-operator-crd

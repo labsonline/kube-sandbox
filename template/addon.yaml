@@ -6,3 +6,6 @@ metadata:
 spec:
   supportedTemplates:
     - name: knative-1-0-2
+    - name: monitoring-1-0-0
+    - name: openstack-1-0-0
+    - name: pinniped-1-0-0
