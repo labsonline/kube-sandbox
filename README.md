@@ -99,6 +99,32 @@ kcm_version=1.3.5
 # kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' | kubectl apply -f -
 # kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' | kubectl apply -f -
 
+# TODO: install gwapi
+# helm upgrade envoy-gateway $kcm_templates_url \
+#   --rollback-on-failure --install \
+#   --namespace kube-system \
+#   --version 0.1.0 \
+#   --values <(
+#     cat <<EOF
+# gateway-helm:
+#   config:
+#     envoyGateway:
+#       gateway:
+#         controllerName: gateway.envoyproxy.io/gatewayclass-controller
+#       provider:
+#         type: Kubernetes
+#       logging:
+#         level:
+#           default: info
+#   service:
+#     type: LoadBalancer
+#     annotations:
+#       external-dns.alpha.kubernetes.io/hostname: local
+#   topologyInjector:
+#     enabled: true
+# EOF
+# )
+
 # create kcm namespace
 kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
 
