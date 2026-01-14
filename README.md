@@ -120,8 +120,6 @@ global: &global
   # regional:
   #   cert-manager:
   #     config:
-  #       apiVersion: controller.config.cert-manager.io/v1alpha1
-  #       kind: ControllerConfiguration
   #       enableGatewayAPI: true
 kcm:
   <<: *global
@@ -217,7 +215,7 @@ timeout_duration=60  # Set the timeout duration in seconds
 max_retries=100      # Set the maximum number of retries
 
 PRIVATE_SSH_KEY_B64=$(cat ~/.ssh/id_ed25519 | base64 -w0)
-PRIVATE_SSH_KEY_B64="$PRIVATE_SSH_KEY_B64"  envsubst < template/cluster/remote/env.example >template/cluster/remote/.env
+PRIVATE_SSH_KEY_B64="$PRIVATE_SSH_KEY_B64"  envsubst < template/cluster/remote/example.env >template/cluster/remote/.env
 
 for ((i=1; i<=max_retries; i++)); do
   if timeout $timeout_duration kubectl apply -f <(kustomize build); then
