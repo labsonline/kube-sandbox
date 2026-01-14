@@ -36,13 +36,14 @@ Before starting, ensure you have the following installed on your system:
 
 ## Setup Instructions
 
+Use kind to create the management cluster, orbstack or docker-desktop can also be used.
+
 ### 1. Generate Kind Config File
 
 Run the following command to generate a `kind` configuration file:
 
 ```shell
-stat /tmp/kind.yaml >/dev/null 2>&1 ||
-cat <<EOF >/tmp/kind.yaml
+stat hack/kind-kcm.yaml >/dev/null 2>&1 || cat <<EOF >hack/kind-kcm.yaml
 ---
 apiVersion: kind.x-k8s.io/v1alpha4
 kind: Cluster
@@ -60,14 +61,14 @@ nodes:
         hostPath: /var/run/docker.sock
         containerPath: /var/run/docker.sock
     extraPortMappings:
-      # - containerPort: 80
-      #   hostPort: 80
-      #   protocol: TCP
-      #   listenAddress: 0.0.0.0
-      # - containerPort: 443
-      #   hostPort: 443
-      #   protocol: TCP
-      #   listenAddress: 0.0.0.0
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+        listenAddress: 0.0.0.0
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+        listenAddress: 0.0.0.0
       - # Port for KCM management
         containerPort: 30443
         hostPort: 30443
@@ -81,10 +82,9 @@ EOF
 Create a management cluster using the generated configuration:
 
 ```shell
-grep -qa k0rdent-management-local <(kind get clusters) >/dev/null 2>&1 ||
-kind create cluster \
-  --config /tmp/kind.yaml \
-  --name k0rdent-management-local
+grep -qa kind-kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster \
+  --config hack/kind-kcm.yaml \
+  --name kind-kcm
 ```
 
 ### 3. Install KCM
@@ -95,35 +95,31 @@ Deploy KCM using Helm:
 kcm_templates_url=oci://ghcr.io/labsonline/charts/kcm
 kcm_version=1.3.5
 
-# TODO: install crds
-# kustomize build 'https://github.com/kubernetes-sigs/gateway-api/config/crd/experimental?ref=v1.2.1' | kubectl apply -f -
-# kustomize build 'https://github.com/kubernetes-csi/external-snapshotter/client/config/crd?ref=v8.2.1' | kubectl apply -f -
-
-# TODO: install gwapi
-# helm upgrade envoy-gateway $kcm_templates_url \
-#   --rollback-on-failure --install \
-#   --namespace kube-system \
-#   --version 0.1.0 \
-#   --values <(
-#     cat <<EOF
-# gateway-helm:
-#   config:
-#     envoyGateway:
-#       gateway:
-#         controllerName: gateway.envoyproxy.io/gatewayclass-controller
-#       provider:
-#         type: Kubernetes
-#       logging:
-#         level:
-#           default: info
-#   service:
-#     type: LoadBalancer
-#     annotations:
-#       external-dns.alpha.kubernetes.io/hostname: local
-#   topologyInjector:
-#     enabled: true
-# EOF
-# )
+# install gwapi (optional)
+helm upgrade gwapi $kcm_templates_url \
+  --rollback-on-failure --install \
+  --namespace kube-system \
+  --version 0.1.0 \
+  --values <(
+    cat <<EOF
+gateway-helm:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+      provider:
+        type: Kubernetes
+      logging:
+        level:
+          default: info
+  service:
+    type: LoadBalancer
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: local
+  topologyInjector:
+    enabled: true
+EOF
+)
 
 # create kcm namespace
 kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
@@ -243,25 +239,10 @@ kubectl wait \
 Deploy your management workload using `kustomize`:
 
 ```shell
-timeout_duration=60  # Set the timeout duration in seconds
-max_retries=100      # Set the maximum number of retries
-
 PRIVATE_SSH_KEY_B64=$(cat ~/.ssh/id_ed25519 | base64 -w0)
-PRIVATE_SSH_KEY_B64="$PRIVATE_SSH_KEY_B64"  envsubst < template/cluster/remote/example.env >template/cluster/remote/.env
+PRIVATE_SSH_KEY_B64="${PRIVATE_SSH_KEY_B64}" envsubst < template/cluster/remote/example.env >template/cluster/remote/.env
 
-for ((i=1; i<=max_retries; i++)); do
-  if timeout $timeout_duration kubectl apply -f <(kustomize build); then
-    break
-  else
-    echo "Attempt $i failed. Retrying in 10 seconds..."
-    sleep 10
-  fi
-done
-
-if [ $i -gt $max_retries ]; then
-  echo "Command failed after $max_retries attempts."
-  exit 1
-fi
+kubectl apply -f <(kustomize build)
 ```
 
 ### 5. Create Workload Cluster
@@ -270,10 +251,47 @@ Update `deployment/kustomization.yaml` to include the desired cluster by uncomme
 
 ```yaml
 resources:
+  - adopted
   - dev-docker.yaml
   # - dev-openstack.yaml
   # - dev-remote.yaml
   # - dev-vsphere.yaml
+```
+
+Create a kind cluster for adoption:
+
+```shell
+# generate kind config
+stat hack/kind.yaml >/dev/null 2>&1 || cat <<EOF >hack/kind.yaml
+---
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: kind
+networking:
+  # disableDefaultCNI: true
+  apiServerAddress: 0.0.0.0
+  apiServerPort: 6443
+featureGates:
+  UserNamespacesSupport: true
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+        listenAddress: 0.0.0.0
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+        listenAddress: 0.0.0.0
+EOF
+
+# create kind cluster
+grep -qa kind <(kind get clusters) >/dev/null 2>&1 || kind create cluster --config hack/kind.yaml
+
+# create credential
+BASE64_KUBECONFIG=$(kind get kubeconfig --name="kind" | base64 -w0)
+BASE64_KUBECONFIG="${BASE64_KUBECONFIG}"  envsubst < deployment/adopted/example.env >deployment/adopted/.env
 ```
 
 Create a workload cluster:
@@ -293,10 +311,10 @@ while true; do
   sleep 5
 done
 
-# Export the kubeconfig from the secret to hack/kubeconfig.yaml
-kubectl get secret dev-docker-kubeconfig -o jsonpath='{.data.value}' | base64 --decode > hack/kubeconfig.yaml
-sed -i '' 's/server: https:\/\/.*:30443/server: https:\/\/127.0.0.1:30443/' hack/kubeconfig.yaml
-echo "Exported kubeconfig to hack/kubeconfig.yaml"
+# Export the kubeconfig from the secret to hack/dev-docker-kubeconfig.yaml
+kubectl get secret dev-docker-kubeconfig -o jsonpath='{.data.value}' | base64 --decode > hack/dev-docker-kubeconfig.yaml
+sed -i '' 's/server: https:\/\/.*:30443/server: https:\/\/127.0.0.1:30443/' hack/dev-docker-kubeconfig.yaml
+echo "Exported kubeconfig to hack/dev-docker-kubeconfig.yaml"
 ```
 
 ## Cleanup
@@ -305,8 +323,9 @@ To clean up the management cluster and resources, run:
 
 ```shell
 kubectl delete -f <(kustomize build ./deployment) || true
-kind delete cluster --name k0rdent-management-local
-rm -f /tmp/kind.yaml /tmp/values.yaml hack/kubeconfig.yaml
+kind delete cluster --name kind
+kind delete cluster --name kind-kcm
+rm -f hack/kind-kcm.yaml /tmp/values.yaml hack/dev-docker-kubeconfig.yaml hack/kind.yaml
 ```
 
 ---
