@@ -193,6 +193,12 @@ management:
         targetNamespaces:
           list:
             - default
+      - serviceTemplateChains:
+          - core
+          - addon
+        targetNamespaces:
+          list:
+            - default
   providers:
     - name: cluster-api-provider-docker
     - name: cluster-api-provider-k0sproject-k0smotron
@@ -260,7 +266,7 @@ fi
 
 ### 5. Create Workload Cluster
 
-Update `cluster/kustomization.yaml` to include the desired cluster by uncommenting the relevant lines. For example:
+Update `deployment/kustomization.yaml` to include the desired cluster by uncommenting the relevant lines. For example:
 
 ```yaml
 resources:
@@ -273,7 +279,7 @@ resources:
 Create a workload cluster:
 
 ```shell
-kustomize build ./cluster | kubectl apply -f -
+kustomize build ./deployment | kubectl apply -f -
 
 # Wait for kubeconfig to be created
 echo "Waiting for kubeconfig to be created..."
@@ -298,7 +304,7 @@ echo "Exported kubeconfig to hack/kubeconfig.yaml"
 To clean up the management cluster and resources, run:
 
 ```shell
-kubectl delete -f <(kustomize build ./cluster) || true
+kubectl delete -f <(kustomize build ./deployment) || true
 kind delete cluster --name k0rdent-management-local
 rm -f /tmp/kind.yaml /tmp/values.yaml hack/kubeconfig.yaml
 ```
