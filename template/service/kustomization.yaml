@@ -9,7 +9,10 @@ generatorOptions:
   disableNameSuffixHash: true
 resources:
   - ca.yaml
-  - crd.yaml
   - edns.yaml
   - gateway.yaml
   - knative.yaml
+  - monitoring.yaml
+  - openstack.yaml
+  - pinniped.yaml
+  # - crd.yaml
