@@ -5,5 +5,5 @@ buildMetadata:
 generatorOptions:
   disableNameSuffixHash: true
 resources:
-  - global.yaml
   - mgmt
+  - global.yaml
