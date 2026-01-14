@@ -5,4 +5,4 @@ metadata:
   name: aws-standalone-cp
 spec:
   supportedTemplates:
-    - name: aws-standalone-cp-1-0-10
+    - name: aws-standalone-cp-1-0-20
