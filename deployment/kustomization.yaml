@@ -4,9 +4,10 @@ buildMetadata:
   - originAnnotations
 generatorOptions:
   disableNameSuffixHash: true
-resources: []
-# - dev-aws.yaml
-# - dev-docker.yaml
-# - dev-openstack.yaml
-# - dev-remote.yaml
-# - dev-vsphere.yaml
+resources:
+  # - adopted
+  - dev-docker.yaml
+  # - dev-aws.yaml
+  # - dev-openstack.yaml
+  # - dev-remote.yaml
+  # - dev-vsphere.yaml

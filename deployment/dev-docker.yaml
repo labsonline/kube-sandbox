@@ -10,7 +10,9 @@ spec:
   credential: docker-cluster-cred
   propagateCredentials: false
   config:
-    clusterLabels: {}
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
     k0smotron:
       service:
         type: NodePort
@@ -24,55 +26,8 @@ spec:
     #   featureGates:
     #     - name: UserNamespacesSupport
     #       enabled: true
-    #   helm:
-    #     charts:
-    #       # - # TODO: allow overriding csi
-    #       #   name: csi
-    #       #   chartname: oci://ghcr.io/labsonline/charts/csi
-    #       #   namespace: kube-system
-    #       #   version: 1.0.0
-    #       #   values: |
-    #       #     openebs:
-    #       #       csi:
-    #       #         volumeSnapshots:
-    #       #           enabled: true
-    #       #           keep: false
-    #       #       localpv-provisioner:
-    #       #         hostpathClass:
-    #       #           name: general
-    #       - name: envoy
-    #         chartname: ghcr.io/labsonline/charts/envoy
-    #         namespace: kube-system
-    #         version: 1.0.0
   serviceSpec:
     services: []
-    # - template: knative-1-0-0
-    #   name: knative
+    # - template: cni-1-0-0
+    #   name: cni
     #   namespace: kcm-system
-    # - # FIXME: override mcs values
-    #   template: gateway-1-0-2
-    #   name: gateway
-    #   namespace: kube-system
-    #   values: |
-    #     gateways:
-    #       - name: default-gateway
-    #         className: envoy
-    #         listeners:
-    #           - name: http
-    #             port: 80
-    #             protocol: HTTP
-    #             allowedRoutes:
-    #               namespaces:
-    #                 from: All
-    #           # - name: https
-    #           #   port: 443
-    #           #   protocol: HTTPS
-    #           #   hostname: "*.local"
-    #           #   allowedRoutes:
-    #           #     namespaces:
-    #           #       from: All
-    #           #   tls:
-    #           #     mode: Terminate
-    #           #     certificateRefs:
-    #           #       - name: default-gw-cert
-    #           #         issuer: self-signed-ca-issuer
