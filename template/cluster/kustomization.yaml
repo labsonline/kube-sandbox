@@ -11,4 +11,4 @@ resources:
   # - aws
   # - openstack
   # - vsphere
-  - adopted.yaml
+  - adopted-cluster.yaml
