@@ -7,4 +7,5 @@ spec:
   supportedTemplates:
     - name: ca-1-0-2
     - name: edns-1-0-2
+    - name: envoy-1-0-0
     - name: gateway-1-0-2
