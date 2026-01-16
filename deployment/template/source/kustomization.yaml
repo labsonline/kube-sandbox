@@ -1,0 +1,12 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+commonLabels:
+  k0rdent.mirantis.com/managed: "true"
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - bitnami.yaml
+  - labsonline.yaml

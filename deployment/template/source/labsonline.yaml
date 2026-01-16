@@ -1,0 +1,11 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: labsonline-catalog
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/resource-policy: keep
+spec:
+  type: oci
+  url: oci://ghcr.io/labsonline/charts
