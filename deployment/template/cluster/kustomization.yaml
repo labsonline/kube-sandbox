@@ -1,0 +1,14 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - docker
+  - remote
+  # - aws
+  # - openstack
+  # - vsphere
+  - adopted-cluster.yaml

@@ -1,0 +1,12 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterTemplateChain
+metadata:
+  name: adopted-cluster
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+spec:
+  supportedTemplates:
+    - name: adopted-cluster-1-0-1
