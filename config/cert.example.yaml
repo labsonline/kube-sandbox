@@ -1,0 +1,42 @@
+---
+config:
+  signing:
+    default:
+      expiry: 8760h
+    profiles:
+      intermediate:
+        expiry: 8700h
+        usages:
+          - cert sign
+          - crl sign
+        ca_constraint:
+          is_ca: true
+      server:
+        expiry: 8760h
+        usages:
+          - digital signature
+          - key encipherment
+          - server auth
+          - signing
+ca:
+  CN: Kubernetes Root CA
+  key:
+    algo: rsa
+    size: 4096
+  names:
+    - C: CA
+      L: ON
+      ST: Toronto
+      O: Kubernetes
+      OU: Certificate Authority
+intermediate:
+  CN: Kubernetes Intermediate CA
+  key:
+    algo: rsa
+    size: 4096
+  names:
+    - C: CA
+      L: ON
+      ST: Toronto
+      O: Kubernetes
+      OU: Certificate Authority
