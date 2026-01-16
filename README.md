@@ -108,55 +108,32 @@ EOF
 Deploy KCM using Helm:
 
 ```shell
-# create values file for kcm
-cat <<EOF >hack/values.kcm.yaml
-enterprise:
-  enabled: true
-  replicas: 1
-  k0rdent-ui:
-    enabled: true
-    auth:
-      basic:
-        username: admin
-        secretKeyRef:
-          name: kcm-cred
-          key: KCM_ADMIN_PWD
-    nextAuth:
-      secretKeyRef:
-        name: kcm-cred
-        key: NEXTAUTH_SECRET
-  # regional:
-  #   cert-manager:
-  #     config:
-  #       enableGatewayAPI: true
-gateway:
-  gateways: null
-  # routes:
-  #   - name: kcm-ui
-  #     kind: HTTPRoute
-  #     hostnames:
-  #       - kcm.local
-  #     rules:
-  #       - backendRefs:
-  #           - name: k0rdent-ui
-  #             port: 3000
-  #     gateways:
-  #       - name: envoy
-  #         namespace: kube-system
-EOF
-
 # deploy kcm
 helm upgrade kcm "${HELM_REPO}/kcm" \
-  --install --rollback-on-failure --create-namespace \
+  --install \
+  --rollback-on-failure \
   --namespace kcm-system \
-  --values hack/values.kcm.yaml \
-  --version "${KCM_VERSION}"
+  --version "${KCM_VERSION}" \
+  --set enterprise.enabled=true
 
 # create values file for kcm resource
-cat <<EOF >hack/values.kcmres.yaml
+cat <<EOF >hack/values.kcm.yaml
 type: enterprise
 repository: true
 release: true
+# gateway:
+#   routes:
+#     - name: kcm-ui
+#       kind: HTTPRoute
+#       hostnames:
+#         - kcm.local
+#       rules:
+#         - backendRefs:
+#             - name: k0rdent-ui
+#               port: 3000
+#       gateways:
+#         - name: envoy
+#           namespace: kube-system
 enterprise:
   providers:
     - name: cluster-api-provider-docker
@@ -188,20 +165,34 @@ management:
     - name: cluster-api-provider-docker
     - name: cluster-api-provider-k0sproject-k0smotron
     - name: projectsveltos
-  # kcm:
-  #   config:
-  #     regional:
-  #       cert-manager:
-  #         config:
-  #           enableGatewayAPI: true
+  kcm:
+    config:
+      replicas: 1
+      k0rdent-ui:
+        enabled: true
+        auth:
+          basic:
+            username: admin
+            secretKeyRef:
+              name: kcm-cred
+              key: KCM_ADMIN_PWD
+        nextAuth:
+          secretKeyRef:
+            name: kcm-cred
+            key: NEXTAUTH_SECRET
+      # regional:
+      #   cert-manager:
+      #     config:
+      #       enableGatewayAPI: true
 EOF
 
 # FIXME: deploy kcm resource
 helm upgrade kcm-resource ${HELM_REPO}/kcm \
-  --install --rollback-on-failure --create-namespace \
+  --install \
+  --rollback-on-failure \
   --namespace kcm-system \
-  --values hack/values.kcmres.yaml \
-  --version "${KCM_VERSION}"
+  --version "${KCM_VERSION}" \
+  --values hack/values.kcm.yaml
 
 # wait for KCM to be ready
 kubectl wait --for condition=Ready --namespace kcm-system --timeout 720s Management/kcm
