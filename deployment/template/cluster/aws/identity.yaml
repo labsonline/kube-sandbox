@@ -1,0 +1,10 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSClusterStaticIdentity
+metadata:
+  name: aws-cluster-identity
+spec:
+  secretRef: aws-cluster-secret
+  allowedNamespaces:
+    selector:
+      matchLabels: {}

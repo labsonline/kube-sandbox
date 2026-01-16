@@ -1,0 +1,21 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+configmapGenerator:
+  - name: aws-cluster-identity-resource-template
+secretGenerator:
+  - name: aws-cluster-identity-secret
+    envs:
+      - .env
+resources:
+  - identity.yaml
+  - credential.yaml
+  - aws-standalone-cp.yaml
