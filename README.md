@@ -7,6 +7,7 @@ This repository demonstrates how to set up a Kubernetes cluster using `kind`, de
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Setup Instructions](#setup-instructions)
+  - [0. Prequisites](#0-prequisites)
   - [1. Generate Kind Config File](#1-generate-kind-config-file)
   - [2. Create Management Cluster](#2-create-management-cluster)
   - [3. Install KCM](#3-install-kcm)
@@ -36,9 +37,18 @@ Before starting, ensure you have the following installed on your system:
 
 ## Setup Instructions
 
+### 0. Prequisites
+
 Copy config/cert.yaml.example to config/cert.yaml and customize it.
 
 ```shell
+CF_API_TOKEN="${CF_API_TOKEN}" envsubst < deployment/secret/mgmt/cf.example.env >deployment/secret/mgmt/cf.env
+KCM_ADMIN_PWD="${KCM_ADMIN_PWD}" envsubst < deployment/secret/mgmt/kcm.example.env >deployment/secret/mgmt/kcm.env
+
+CF_API_TOKEN="${CF_API_TOKEN}" envsubst < deployment/secret/cf.example.env >deployment/secret/cf.env
+
+PRIVATE_SSH_KEY_B64="${PRIVATE_SSH_KEY_B64}" envsubst < deployment/template/cluster/remote/example.env >deployment/template/cluster/remote/.env
+
 yq '.config' config/cert.yaml -o json >config/pki/openssl.json                # generate openssl config
 yq '.ca' config/cert.yaml -o json >config/pki/ca.json                         # generate root ca config
 yq '.intermediate' config/cert.yaml -o json >config/pki/intermediate.json     # generate intermediate ca config
@@ -59,7 +69,7 @@ Use kind to create the management cluster, orbstack or docker-desktop can also b
 
 ### 1. Generate Kind Config File
 
-Run the following command to generate a `kind` configuration file:
+Copy the example files to create your `kind` configuration files:
 
 ```shell
 cp config/kind/kcm.example.yaml config/kind/kcm.yaml
@@ -74,16 +84,8 @@ Create a management cluster using the generated configuration:
 grep -qa kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster --config config/kind/kcm.yaml
 
 # add secrets
-CF_API_TOKEN="${CF_API_TOKEN}" envsubst < deployment/secret/example.env >deployment/secret/.env
-kubectl create secret tls ca-issuer-cred \
-  --namespace kcm-system \
-  --cert=config/pki/intermediate.pem \
-  --key=config/pki/intermediate-key.pem \
-  --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret generic cloudflare-api-token \
-  --namespace kube-system \
-  --from-literal=api-token="${CF_API_TOKEN}" \
-  --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f <(kustomize build --load-restrictor=LoadRestrictionsNone deployment/secret/mgmt)
 
 # install gwapi
 helm upgrade gwapi "${HELM_REPO}/envoy" \
@@ -106,28 +108,41 @@ EOF
 Deploy KCM using Helm:
 
 ```shell
-# create kcm namespace
-kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
-
-# create NEXTAUTH_SECRET
-NEXTAUTH_SECRET=$(openssl rand -hex 8)
-kubectl create secret generic k0rdent-nextauth \
-  --namespace kcm-system \
-  --from-literal=NEXTAUTH_SECRET=$NEXTAUTH_SECRET \
-  --dry-run=client -o yaml | kubectl apply -f -
-
 # create values file for kcm
 cat <<EOF >hack/values.kcm.yaml
-regional:
-  cert-manager:
-    config:
-      enableGatewayAPI: true
-community:
-  install: false
 enterprise:
-  install: true
+  enabled: true
+  replicas: 1
   k0rdent-ui:
     enabled: true
+    auth:
+      basic:
+        username: admin
+        secretKeyRef:
+          name: kcm-cred
+          key: KCM_ADMIN_PWD
+    nextAuth:
+      secretKeyRef:
+        name: kcm-cred
+        key: NEXTAUTH_SECRET
+  # regional:
+  #   cert-manager:
+  #     config:
+  #       enableGatewayAPI: true
+gateway:
+  gateways: null
+  # routes:
+  #   - name: kcm-ui
+  #     kind: HTTPRoute
+  #     hostnames:
+  #       - kcm.local
+  #     rules:
+  #       - backendRefs:
+  #           - name: k0rdent-ui
+  #             port: 3000
+  #     gateways:
+  #       - name: envoy
+  #         namespace: kube-system
 EOF
 
 # deploy kcm
@@ -139,17 +154,10 @@ helm upgrade kcm "${HELM_REPO}/kcm" \
 
 # create values file for kcm resource
 cat <<EOF >hack/values.kcmres.yaml
-community:
-  enabled: false
-  providers:
-    - name: cluster-api-provider-docker
-      template: cluster-api-provider-docker-1-0-7
-    - name: cluster-api-provider-k0sproject-k0smotron
-      template: cluster-api-provider-k0sproject-k0smotron-1-0-14
-    - name: projectsveltos
-      template: projectsveltos-1-1-1
+type: enterprise
+repository: true
+release: true
 enterprise:
-  enabled: true
   providers:
     - name: cluster-api-provider-docker
       template: cluster-api-provider-docker-1-0-5
@@ -158,6 +166,7 @@ enterprise:
     - name: projectsveltos
       template: projectsveltos-1-1-1
 management:
+  enabled: true
   access:
     enabled: true
     rules:
@@ -179,16 +188,15 @@ management:
     - name: cluster-api-provider-docker
     - name: cluster-api-provider-k0sproject-k0smotron
     - name: projectsveltos
-  capi: {}
-  kcm:
-    config:
-      regional:
-        cert-manager:
-          config:
-            enableGatewayAPI: true
+  # kcm:
+  #   config:
+  #     regional:
+  #       cert-manager:
+  #         config:
+  #           enableGatewayAPI: true
 EOF
 
-# deploy kcm resource
+# FIXME: deploy kcm resource
 helm upgrade kcm-resource ${HELM_REPO}/kcm \
   --install --rollback-on-failure --create-namespace \
   --namespace kcm-system \
@@ -196,11 +204,7 @@ helm upgrade kcm-resource ${HELM_REPO}/kcm \
   --version "${KCM_VERSION}"
 
 # wait for KCM to be ready
-kubectl wait \
-  --for condition=Ready \
-  --namespace kcm-system \
-  --timeout 720s \
-  Management/kcm
+kubectl wait --for condition=Ready --namespace kcm-system --timeout 720s Management/kcm
 ```
 
 ### 4. Deploy Management Workload
@@ -208,7 +212,6 @@ kubectl wait \
 Deploy your management workload using `kustomize`:
 
 ```shell
-PRIVATE_SSH_KEY_B64="${PRIVATE_SSH_KEY_B64}" envsubst < deployment/template/cluster/remote/example.env >deployment/template/cluster/remote/.env
 kubectl apply -f <(kustomize build deployment)
 ```
 
@@ -237,7 +240,7 @@ kubectl create namespace cert-manager --dry-run=client -o yaml | kubectl --kubec
 kubectl --kubeconfig hack/kind-adopted-kubeconfig.yaml apply -f <(kustomize build --load-restrictor=LoadRestrictionsNone deployment/secret)
 
 # create credential
-BASE64_KUBECONFIG=$(cat hack/kind-adopted-kubeconfig.yaml | base64 -w0)
+BASE64_KUBECONFIG="$(cat hack/kind-adopted-kubeconfig.yaml | base64 -w0)"
 BASE64_KUBECONFIG="${BASE64_KUBECONFIG}"  envsubst < deployment/cluster/adopted/example.env >deployment/cluster/adopted/.env
 ```
 
@@ -269,6 +272,8 @@ rm -f \
   "config/kind/kcm.yaml" \
   "deployment/cluster/adopted/.env" \
   "deployment/secret/.env" \
+  "deployment/secret/mgmt/cf.env" \
+  "deployment/secret/mgmt/kcm.env" \
   "deployment/template/cluster/remote/.env" \
   "hack/*kubeconfig.yaml" \
   "hack/kind*.yaml" \
