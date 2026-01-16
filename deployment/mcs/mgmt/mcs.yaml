@@ -1,0 +1,177 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  serviceSpec:
+    priority: 100
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
+      - template: external-snapshotter-crd
+        name: external-snapshotter-crd
+        namespace: kube-system
+      - template: prometheus-operator-crd
+        name: prometheus-operator-crd
+        namespace: kube-system
+      - template: ca-1-0-3
+        name: ca-issuer
+        namespace: cert-manager
+        values: |
+
+          issuers:
+            - name: ca-issuer-self-signed
+              clustered: true
+              selfSigned: true
+              secret:
+                create: false
+            - name: ca-issuer
+              certManagerNamespace: cert-manager
+              type: ca
+              clustered: true
+              secret:
+                name: ca-issuer-cred
+                create: false
+                ca:
+                  crt: null
+                  key: null
+          cert-manager:
+            enabled: false
+          trust-manager:
+            enabled: false
+      # - template: edns-1-0-3
+      #   name: edns
+      #   namespace: kube-system
+      #   values: |
+
+      #     endpoints: []
+      #     # - name: examplearecord
+      #     #   records:
+      #     #     - name: example.com
+      #     #       targets:
+      #     #         - 10.0.0.1
+      #     external-dns:
+      #       enabled: true
+      #       policy: sync
+      #       txtOwnerId: kcm
+      #       txtPrefix: kcm-
+      #       logLevel: info
+      #       interval: 30s
+      #       triggerLoopOnEvent: true
+      #       gatewayNamespace: kube-system
+      #       # gatewayLabelFilter: external-dns=enabled
+      #       # domainFilters: []
+      #       sources:
+      #         - crd
+      #         - gateway-grpcroute
+      #         - gateway-httproute
+      #         - ingress
+      #         - service
+      #       provider:
+      #         name: cloudflare
+      #       env:
+      #         - name: CF_API_TOKEN
+      #           valueFrom:
+      #             secretKeyRef:
+      #               name: cloudflare-api-token
+      #               key: cf-api-token
+      # - template: gwapi-1-0-2
+      #   name: gwapi
+      #   namespace: kube-system
+      #   values: |
+
+      #     gwapi:
+      #       config:
+      #         envoyGateway:
+      #           gateway:
+      #             controllerName: gateway.envoyproxy.io/gatewayclass-controller
+      #           provider:
+      #             type: Kubernetes
+      #           logging:
+      #             level:
+      #               default: info
+      #       service:
+      #         type: LoadBalancer
+      #         annotations:
+      #           external-dns.alpha.kubernetes.io/hostname: "" # TODO: gwapi domain
+      #       topologyInjector:
+      #         enabled: true
+      # - template: gwapi-1-0-2
+      #   name: gwclass
+      #   namespace: kube-system
+      #   values: |
+
+      #     classes:
+      #       - name: envoy
+      #         description: "Default Envoy Gateway class"
+      #     gwapi:
+      #       enabled: false
+      #       # config:
+      #       #   envoyGateway:
+      #       #     gateway:
+      #       #       controllerName: gateway.envoyproxy.io/gatewayclass-controller      # - template: gateway-1-0-2
+      # - template: gateway-1-0-3
+      #   name: gateway
+      #   namespace: kube-system
+      #   values: |
+
+      #     routes:
+      #       - name: k0rdent
+      #         kind: HTTPRoute
+      #         hostnames:
+      #           - ""  # TODO: k0rdent ui hostname
+      #         rules:
+      #           - backendRefs:
+      #               - name: kcm-k0rdent-ui
+      #                 port: 3000
+      #         gateways:
+      #           - name: http-gateway
+      #             namespace: kube-system
+      #     grants:
+      #       - name: allow-gateways-to-ref-secrets
+      #         to:
+      #           - group: ""
+      #             kind: Secret
+      #         from:
+      #           - group: gateway.networking.k8s.io
+      #             kind: Gateway
+      #             namespace: kube-system
+      #     gateways:
+      #       - name: http-gateway
+      #         className: envoy
+      #         listeners:
+      #           - name: https
+      #             port: 443
+      #             protocol: HTTPS
+      #             hostname: ""  # TODO: gateway hostname
+      #             allowedRoutes:
+      #               namespaces:
+      #                 from: All
+      #             tls:
+      #               mode: Terminate
+      #               certificateRefs:
+      #                 - name: http-gw-cert
+      #                   issuer: ca-issuer
+      #       # - name: grpc-gateway
+      #       #   className: envoy
+      #       #   listeners:
+      #       #     - name: grpc
+      #       #       port: 443
+      #       #       protocol: HTTPS
+      #       #       hostname: ""  # TODO: gateway hostname
+      #       #       allowedRoutes:
+      #       #         namespaces:
+      #       #           from: All
+      #       #         kinds:
+      #       #           - kind: GRPCRoute
+      #       #       tls:
+      #       #         mode: Terminate
+      #       #         certificateRefs:
+      #       #           - name: grpc-gw-cert
+      #       #             issuer: ca-issuer
