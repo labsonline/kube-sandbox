@@ -1,0 +1,12 @@
+---
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - mgmt
+  - crd.yaml
+  - global.yaml
+  - addon.yaml
+  - knative.yaml
