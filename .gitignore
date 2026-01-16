@@ -42,6 +42,8 @@ hack/upstream/
 Thumbs.db
 
 # Ignore sensitive files
-.env.local
-.env.*
+*.env
 secrets.yaml
+
+# Exceptions
+!*example.env
