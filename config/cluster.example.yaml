@@ -1,0 +1,249 @@
+---
+apiVersion: k0sctl.k0sproject.io/v1beta1
+kind: Cluster
+metadata:
+  name: devbox
+spec:
+  hosts:
+    - role: controller+worker
+      noTaints: true
+      ssh:
+        address: 192.168.0.105
+        keyPath: ~/.ssh/id_ed25519
+        port: 22
+        user: admin
+      installFlags:
+        - --kubelet-extra-args=--cgroup-driver=systemd
+      files:
+        # - # custom resources definitions
+        #   name: crds
+        #   src: ./crds
+        #   dstDir: /var/lib/k0s/manifests/crds
+        - # secrets
+          name: secrets
+          src: ./manifests/secret.yaml
+          dst: /var/lib/k0s/manifests/resources/secrets.yaml
+  k0s:
+    version: v1.33.1+k0s.1
+    config:
+      apiVersion: k0s.k0sproject.io/v1beta1
+      kind: Cluster
+      metadata:
+        name: devbox
+      spec:
+        api:
+          sans:
+            - devbox.dev.local
+        network:
+          provider: custom
+        featureGates:
+          - name: UserNamespacesSupport
+            enabled: true
+        extensions:
+          helm:
+            charts:
+              - # cilium cni
+                name: cni
+                chartname: oci://ghcr.io/labsonline/charts/cni
+                namespace: kube-system
+                order: 1
+                version: 1.0.0
+                values: |
+                  cilium:
+                    operator:
+                      replicas: 1
+              - # cilium cni resources
+                name: cni-resource
+                chartname: oci://ghcr.io/labsonline/charts/cni
+                namespace: kube-system
+                order: 2
+                version: 1.0.0
+                values: |
+                  cilium:
+                    peer:
+                      authSecretRef: bgp-cred
+                      gracefulRestart: true
+                      holdTimeSec: 9
+                      keepAliveTimeSec: 3
+                      multiHop: 4
+                      restartTimeSec: 15
+                      addressFamilies:
+                        - afi: ipv4
+                          safi: unicast
+                          advertisements:
+                            matchLabels:
+                              advertise: bgp
+                    instances:
+                      - name: cilium
+                        localASN: 65000
+                        overrides:
+                          enabled: true
+                        peers:
+                          - name: peer-1
+                            peerASN: 65000
+                            peerAddress: fd00:10:0:0::1
+                            peerConfigRef:
+                              name: cni-resources-peer-config
+                    pool:
+                      enabled: true
+                      cidr: 172.16.22.0/24
+              - # ceph csi
+                name: csi
+                chartname: oci://ghcr.io/labsonline/charts/csi
+                namespace: kube-system
+                order: 3
+                version: 1.0.0
+                values: ""
+              - # ceph csi resources
+                name: csi-resource
+                chartname: oci://ghcr.io/labsonline/charts/csi
+                namespace: kube-system
+                order: 4
+                version: 1.0.0
+                values: ""
+              - # edns
+                name: edns
+                chartname: oci://ghcr.io/labsonline/charts/edns
+                namespace: kube-system
+                order: 5
+                version: 1.0.0
+                values: |
+                  endpoints:
+                    - name: a-devbox-dev-local
+                      records:
+                        - name: devbox.dev.local
+                          targets:
+                            - 192.168.0.105
+                  external-dns:
+                    enabled: true
+                    env:
+                    - name: EXTERNAL_DNS_RFC2136_TSIG_KEYNAME
+                      valueFrom:
+                        secretKeyRef:
+                          key: name
+                          name: externaldns-tsig-secret
+                    - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
+                      valueFrom:
+                        secretKeyRef:
+                          key: secret
+                          name: externaldns-tsig-secret
+                    extraArgs:
+                    - --rfc2136-host=192.168.0.105
+                    - --rfc2136-port=53
+                    - --rfc2136-tsig-secret-alg=hmac-sha256
+                    - --rfc2136-zone=dev.local
+                    - --rfc2136-tsig-axfr
+                    provider:
+                      name: rfc2136
+              - # gateway
+                name: gw
+                chartname: oci://ghcr.io/labsonline/charts/gateway
+                namespace: kube-system
+                order: 5
+                version: 1.0.0
+                values: |
+                  routes: []
+                  gateways:
+                    - name: default-gateway
+                      className: cilium
+                      listeners:
+                        - name: http
+                          port: 80
+                          protocol: HTTP
+                          allowedRoutes:
+                            namespaces:
+                              from: All
+                        - name: https
+                          port: 443
+                          protocol: HTTPS
+                          hostname: "*.dev.local"
+                          allowedRoutes:
+                            namespaces:
+                              from: All
+                          tls:
+                            mode: Terminate
+                            certificateRefs:
+                              - name: default-gw-cert
+                                issuer: ca-issuer
+                    - name: tls-gateway
+                      className: cilium
+                      listeners:
+                        - name: tls
+                          port: 443
+                          protocol: TLS
+                          allowedRoutes:
+                            namespaces:
+                              from: All
+                            kinds:
+                              - kind: TLSRoute
+                          tls:
+                            mode: Passthrough
+              - # openstack deployment
+                name: osdpl
+                chartname: oci://ghcr.io/labsonline/charts/rockoon
+                namespace: osh-system
+                order: 6
+                version: 0.1.0
+                values: ""
+              - # kubernetes cluster manager
+                name: kcm
+                chartname: oci://ghcr.io/labsonline/charts/kcm
+                namespace: kcm-system
+                order: 7
+                version: 1.2.0
+                values: |
+                  kcm:
+                    cert-manager:
+                      config:
+                        apiVersion: controller.config.cert-manager.io/v1alpha1
+                        kind: ControllerConfiguration
+                        enableGatewayAPI: true
+              - # kubernetes cluster manager resources
+                name: kcm-resource
+                chartname: oci://ghcr.io/labsonline/charts/kcm
+                namespace: kcm-system
+                order: 8
+                version: 1.2.0
+                values: |
+                  management:
+                    enabled: true
+                    access:
+                      enabled: true
+                      rules:
+                        - clusterTemplateChains:
+                            - adopted-cluster
+                            - docker-hosted-cp
+                            - remote-cluster
+                          targetNamespaces:
+                            list:
+                              - default
+                    providers:
+                      - name: cluster-api-provider-docker
+                      - name: cluster-api-provider-k0sproject-k0smotron
+                      - name: projectsveltos
+                  release:
+                    enabled: true
+                    providers:
+                      - name: cluster-api-provider-k0sproject-k0smotron
+                        template: cluster-api-provider-k0sproject-k0smotron-1-0-6
+                      - name: cluster-api-provider-docker
+                        template: cluster-api-provider-docker-1-0-2
+                      - name: projectsveltos
+                        template: projectsveltos-0-57-2
+                  kcm:
+                    install: false
+              - # certificate authority
+                name: ca
+                chartname: oci://ghcr.io/labsonline/charts/ca
+                namespace: kcm-system
+                order: 8
+                version: 1.0.0
+                values: |
+                  issuers:
+                    - name: self-signed-ca-issuer
+                      clustered: true
+                      selfSigned: true
+                      secret:
+                        create: false
+        telemetry:
+          enabled: false
