@@ -1,0 +1,10 @@
+clouds:
+  openstack:
+    region_name: ${OS_REGION_NAME}
+    interface: ${OS_INTERFACE}
+    identity_api_version: ${OS_IDENTITY_API_VERSION}
+    auth_type: ${OS_AUTH_TYPE}
+    auth:
+      auth_url: ${OS_AUTH_URL}
+      application_credential_id: ${OS_APPLICATION_CREDENTIAL_ID}
+      application_credential_secret: ${OS_APPLICATION_CREDENTIAL_SECRET}

@@ -1,0 +1,22 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+configmapGenerator:
+  - name: openstack-cloud-config-resource-template
+    files:
+      - configmap.yaml
+secretGenerator:
+  - name: openstack-cloud-config
+    files:
+      - clouds.yaml
+resources:
+  - credential.yaml
+  - openstack-standalone-cp.yaml
