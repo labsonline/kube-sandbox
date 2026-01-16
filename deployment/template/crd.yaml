@@ -1,0 +1,9 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: crd
+spec:
+  supportedTemplates:
+    - name: external-snapshotter-crd
+    - name: prometheus-operator-crd

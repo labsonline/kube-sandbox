@@ -1,0 +1,9 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: optional
+spec:
+  supportedTemplates:
+    - name: cni-1-0-2
+    - name: csi-1-0-2

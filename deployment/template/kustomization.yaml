@@ -1,0 +1,15 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - cluster
+  - service
+  - source
+  - crd.yaml
+  - core.yaml
+  - addon.yaml
+  - optional.yaml

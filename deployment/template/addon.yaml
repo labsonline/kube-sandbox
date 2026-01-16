@@ -1,0 +1,11 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: addon
+spec:
+  supportedTemplates:
+    - name: knative-1-0-3
+    - name: monitoring-1-0-2
+    - name: openstack-1-0-2
+    - name: pinniped-1-0-2

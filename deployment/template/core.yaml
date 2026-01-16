@@ -1,0 +1,11 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: core
+spec:
+  supportedTemplates:
+    - name: ca-1-0-3
+    - name: edns-1-0-3
+    - name: gateway-1-0-3
+    - name: gwapi-1-0-2
