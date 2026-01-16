@@ -1,0 +1,13 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: VSphereClusterIdentity
+metadata:
+  name: vsphere-cluster-identity
+  namespace: kcm-system
+  labels:
+    k0rdent.mirantis.com/component: "kcm"
+spec:
+  secretName: vsphere-cluster-identity-secret
+  allowedNamespaces:
+    selector:
+      matchLabels: {}

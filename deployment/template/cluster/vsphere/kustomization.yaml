@@ -1,0 +1,23 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+configmapGenerator:
+  - name: vsphere-cluster-identity-resource-template
+    files:
+      - configmap.yaml
+secretGenerator:
+  - name: vsphere-cluster-identity-secret
+    envs:
+      - .env
+resources:
+  - identity.yaml
+  - credential.yaml
+  - vsphere-standalone-cp.yaml

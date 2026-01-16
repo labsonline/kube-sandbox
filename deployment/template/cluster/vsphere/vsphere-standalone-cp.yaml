@@ -1,0 +1,9 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterTemplateChain
+metadata:
+  name: vsphere-standalone-cp
+spec:
+  supportedTemplates:
+    - name: vsphere-standalone-cp-1-0-17
+    - name: vsphere-standalone-cp-1-0-18
