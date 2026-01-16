@@ -1,0 +1,43 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-aws
+  namespace: default
+spec:
+  template: aws-standalone-cp-1-0-20
+  credential: aws-cluster-cred
+  propagateCredentials: false
+  config:
+    # region: us-east-1
+    # sshKeyName: aws-public-key
+    controlPlaneNumber: 1
+    workersNumber: 2
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
+    # bastion:
+    #   enabled: true
+    #   instanceType: t2.micro
+    #   ami: ami-0e86e20dae9224db8  # Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+    # controlPlane:
+    #   amiID: ami-0e86e20dae9224db8  # Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+    #   instanceType: t3.small
+    #   rootVolumeSize: 32
+    # worker:
+    #   amiID: ami-0e86e20dae9224db8  # Ubuntu Server 24.04 LTS (HVM), SSD Volume Type
+    #   instanceType: t3.small
+    #   rootVolumeSize: 32
+    # k0s:
+    #   arch: amd64
+    #   cpArgs: []
+    #   workerArgs: []
+    #   api:
+    #     extraArgs: {}
+    #   network:
+    #     provider: custom
+  serviceSpec:
+    services: []
+    # - template: cni-1-0-0
+    #   name: cni
+    #   namespace: kcm-system

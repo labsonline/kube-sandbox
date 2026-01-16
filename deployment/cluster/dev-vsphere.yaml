@@ -1,0 +1,56 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-vsphere
+  namespace: default
+spec:
+  template: vsphere-standalone-cp-1-0-17  # Enterprise
+  # template: vsphere-standalone-cp-1-0-18  # OSS
+  credential: vsphere-cluster-cred
+  propagateCredentials: false
+  config:
+    # controlPlaneEndpointIP: ""
+    controlPlaneNumber: 1
+    workersNumber: 2
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
+    # vsphere:
+    #   server: vcenter.example.com
+    #   thumbprint: ""
+    #   datacenter: DC
+    #   datastore: /DC/datastore/DC
+    #   resourcePool: /DC/host/vCluster/Resources/ResPool
+    #   folder: /DC/vm/example
+    # controlPlane:
+    #   cpus: 2
+    #   memory: 4096
+    #   rootVolumeSize: 50
+    #   vmTemplate: /DC/vm/template
+    #   network: /DC/network/Net
+    #   ssh:
+    #     user: ubuntu
+    #     publicKey: ""
+    # worker:
+    #   cpus: 2
+    #   memory: 4096
+    #   rootVolumeSize: 50
+    #   vmTemplate: /DC/vm/template
+    #   network: /DC/network/Net
+    #   ssh:
+    #     user: ubuntu
+    #     publicKey: ""
+    # k0s:
+    #   arch: amd64
+    #   cpArgs: []
+    #   workerArgs: []
+    #   api:
+    #     extraArgs: {}
+    #   network:
+    #     provider: custom
+  serviceSpec:
+    services: []
+    # - template: cni-1-0-0
+    #   name: cni
+    #   namespace: kcm-system

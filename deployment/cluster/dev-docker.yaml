@@ -1,0 +1,29 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-docker
+  namespace: default
+spec:
+  dryRun: false
+  template: docker-hosted-cp-1-0-4
+  credential: docker-cluster-cred
+  propagateCredentials: false
+  config:
+    workersNumber: 1
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
+    # k0smotron:
+    #   service:
+    #     type: LoadBalancer
+    # k0s:
+    #   workerArgs: []
+  serviceSpec:
+    services: []
+    # - template: cni-1-0-0
+    #   name: cni
+    #   namespace: kcm-system
+    # - template: csi-1-0-0
+    #   name: csi
+    #   namespace: kcm-system

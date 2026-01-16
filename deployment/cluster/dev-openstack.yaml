@@ -1,0 +1,58 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-openstack
+  namespace: default
+spec:
+  template: openstack-standalone-cp-1-0-21  # Enterprise
+  # template: openstack-standalone-cp-1-0-22  # OSS
+  credential: openstack-cluster-cred
+  propagateCredentials: false
+  config:
+    controlPlaneNumber: 1
+    workersNumber: 2
+    # clusterLabels:
+    #   app.kubernetes.io/knative: enabled
+    #   app.kubernetes.io/addon: enabled
+    # identityRef:
+    #   cloudName: openstack
+    #   region: RegionOne
+    # externalNetwork:
+    #   filter:
+    #     name: public
+    # bastion:
+    #   enabled: true
+    #   spec:
+    #     sshKeyName: openstack-public-key
+    #     flavor: m1.small
+    #     image:
+    #       filter:
+    #         name: ubuntu-24.04
+    # apiServerLoadBalancer:
+    #   enabled: true
+    # controlPlane:
+    #   sshKeyName: openstack-bastion-public-key
+    #   flavor: m1.medium
+    #   image:
+    #     filter:
+    #       name: ubuntu-24.04
+    # worker:
+    #   sshKeyName: openstack-bastion-public-key
+    #   flavor: m1.medium
+    #   image:
+    #     filter:
+    #       name: ubuntu-24.04
+    # k0s:
+    #   arch: amd64
+    #   cpArgs: []
+    #   workerArgs: []
+    #   api:
+    #     extraArgs: {}
+    #   network:
+    #     provider: custom
+  serviceSpec:
+    services: []
+    # - template: cni-1-0-0
+    #   name: cni
+    #   namespace: kcm-system

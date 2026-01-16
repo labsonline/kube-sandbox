@@ -1,0 +1,13 @@
+---
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - adopted
+  - dev-docker.yaml
+  # - dev-aws.yaml
+  # - dev-openstack.yaml
+  # - dev-remote.yaml
+  # - dev-vsphere.yaml
