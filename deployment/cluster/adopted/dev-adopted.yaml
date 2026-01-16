@@ -1,0 +1,21 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterDeployment
+metadata:
+  name: dev-adopted
+spec:
+  template: adopted-cluster-1-0-1
+  credential: adopted-cluster-cred
+  dryRun: false
+  # clusterLabels:
+  #   app.kubernetes.io/knative: enabled
+  #   app.kubernetes.io/addon: enabled
+  config: {}
+  serviceSpec:
+    services:
+      - name: cni
+        namespace: kcm-system
+        template: cni-1-0-0
+      - name: csi
+        namespace: kcm-system
+        template: cni-1-0-0
