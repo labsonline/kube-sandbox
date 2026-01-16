@@ -1,0 +1,18 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+configmapGenerator:
+  - name: docker-cluster-credential-resource-template
+secretGenerator:
+  - name: docker-cluster-secret
+resources:
+  - credential.yaml
+  - docker-hosted-cp.yaml

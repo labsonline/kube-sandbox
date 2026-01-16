@@ -1,0 +1,8 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterTemplateChain
+metadata:
+  name: docker-hosted-cp
+spec:
+  supportedTemplates:
+    - name: docker-hosted-cp-1-0-4
