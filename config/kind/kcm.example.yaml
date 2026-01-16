@@ -1,0 +1,30 @@
+---
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: kcm
+networking:
+  apiServerAddress: 127.0.0.1
+  apiServerPort: 6443
+featureGates:
+  UserNamespacesSupport: true
+nodes:
+  - role: control-plane
+    extraMounts:
+      - # We are mounting the Docker socket to allow KCM to manage containers
+        # on the host system (for DockerCluster).
+        hostPath: /var/run/docker.sock
+        containerPath: /var/run/docker.sock
+    extraPortMappings:
+      - containerPort: 80
+        hostPort: 80
+        protocol: TCP
+        listenAddress: 0.0.0.0
+      - containerPort: 443
+        hostPort: 443
+        protocol: TCP
+        listenAddress: 0.0.0.0
+      - # Port for KCM management
+        containerPort: 30443
+        hostPort: 30443
+        protocol: TCP
+        listenAddress: 0.0.0.0
