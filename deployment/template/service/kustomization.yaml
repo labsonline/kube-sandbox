@@ -1,0 +1,21 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+commonLabels:
+  k0rdent.mirantis.com/managed: "true"
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - crd.yaml
+  - ca.yaml
+  - cni.yaml
+  - csi.yaml
+  - edns.yaml
+  - envoy.yaml
+  - gateway.yaml
+  - knative.yaml
+  - monitoring.yaml
+  - openstack.yaml
+  - pinniped.yaml
