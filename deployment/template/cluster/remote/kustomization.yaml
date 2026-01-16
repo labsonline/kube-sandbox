@@ -1,0 +1,20 @@
+---
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    k0rdent.mirantis.com/component: kcm
+  annotations:
+    projectsveltos.io/template: "true"
+configmapGenerator:
+  - name: remote-ssh-key-resource-template
+secretGenerator:
+  - name: remote-ssh-key
+    envs:
+      - .env
+resources:
+  - credential.yaml
+  - remote-cluster.yaml
