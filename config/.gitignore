@@ -3,7 +3,9 @@
 
 # Except these files
 !.gitignore
-!example.*
+
+!*example*
+!pki/.gitkeep
 
 # ...even if they are in subdirectories
 !*/
