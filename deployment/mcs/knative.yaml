@@ -11,7 +11,7 @@ spec:
   serviceSpec:
     priority: 100
     services:
-      - template: knative-1-0-3
+      - template: knative-1-20-0
         name: knative-operator
         namespace: operators
         values: |
@@ -30,7 +30,7 @@ spec:
             enabled: false
           operator:
             enabled: true
-      # - template: knative-1-0-3
+      # - template: knative-1-20-0
       #   name: knative-serving
       #   namespace: knative
       #   values: |
@@ -70,7 +70,7 @@ spec:
       #           name: self-signed-ca-issuer
       #     operator:
       #       enabled: false
-      # - template: knative-1-0-3
+      # - template: knative-1-20-0
       #   name: knative-eventing
       #   namespace: knative
       #   values: |
