@@ -6,6 +6,6 @@ metadata:
 spec:
   supportedTemplates:
     - name: ca-1-0-3
-    - name: edns-1-0-3
+    - name: edns-1-19-0
     - name: gateway-1-0-3
     - name: gwapi-1-0-2
