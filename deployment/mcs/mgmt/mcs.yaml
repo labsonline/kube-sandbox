@@ -45,7 +45,7 @@ spec:
             enabled: false
           trust-manager:
             enabled: false
-      # - template: edns-1-0-3
+      # - template: edns-1-19-0
       #   name: edns
       #   namespace: kube-system
       #   values: |
@@ -175,3 +175,8 @@ spec:
       #       #         certificateRefs:
       #       #           - name: grpc-gw-cert
       #       #             issuer: ca-issuer
+      # TODO: lgtm
+      # - template: monitoring-3.7.1
+      #   name: lgtm
+      #   namespace: sre
+      #   values: ""
