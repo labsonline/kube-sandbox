@@ -87,20 +87,7 @@ grep -qa kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster --confi
 kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f <(kustomize build --load-restrictor=LoadRestrictionsNone deployment/secret/mgmt)
 
-# install gwapi
-helm upgrade gwapi "${HELM_REPO}/envoy" \
-  --rollback-on-failure --install \
-  --namespace kube-system \
-  --version 1.0.1 \
-  --values <(
-    cat <<EOF
-gateway-helm:
-  service:
-    type: LoadBalancer
-    annotations:
-      external-dns.alpha.kubernetes.io/hostname: "*.${DOMAIN}"
-EOF
-)
+# TODO: install flux (helm or cli)
 ```
 
 ### 3. Install KCM
@@ -108,91 +95,91 @@ EOF
 Deploy KCM using Helm:
 
 ```shell
-# deploy kcm
-helm upgrade kcm "${HELM_REPO}/kcm" \
-  --install \
-  --rollback-on-failure \
-  --namespace kcm-system \
-  --version "${KCM_VERSION}" \
-  --set enterprise.enabled=true
+# FIXME: deploy kcm
+# helm upgrade kcm "${HELM_REPO}/kcm" \
+#   --install \
+#   --rollback-on-failure \
+#   --namespace kcm-system \
+#   --version "${KCM_VERSION}" \
+#   --set enterprise.enabled=true
 
-# create values file for kcm resource
-cat <<EOF >hack/values.kcm.yaml
-type: enterprise
-repository: true
-release: true
-# gateway:
-#   routes:
-#     - name: kcm-ui
-#       kind: HTTPRoute
-#       hostnames:
-#         - kcm.local
-#       rules:
-#         - backendRefs:
-#             - name: k0rdent-ui
-#               port: 3000
-#       gateways:
-#         - name: envoy
-#           namespace: kube-system
-enterprise:
-  providers:
-    - name: cluster-api-provider-docker
-      template: cluster-api-provider-docker-1-0-5
-    - name: cluster-api-provider-k0sproject-k0smotron
-      template: cluster-api-provider-k0sproject-k0smotron-1-0-12
-    - name: projectsveltos
-      template: projectsveltos-1-1-1
-management:
-  enabled: true
-  access:
-    enabled: true
-    rules:
-      - targetNamespaces:
-          list:
-            - default
-        credentials:
-          - docker-cluster-cred
-          - remote-cluster-cred
-        clusterTemplateChains:
-          - adopted-cluster
-          - docker-hosted-cp
-          - remote-cluster
-        serviceTemplateChains:
-          - core
-          - addon
-          - optional
-  providers:
-    - name: cluster-api-provider-docker
-    - name: cluster-api-provider-k0sproject-k0smotron
-    - name: projectsveltos
-  kcm:
-    config:
-      replicas: 1
-      k0rdent-ui:
-        enabled: true
-        auth:
-          basic:
-            username: admin
-            secretKeyRef:
-              name: kcm-cred
-              key: KCM_ADMIN_PWD
-        nextAuth:
-          secretKeyRef:
-            name: kcm-cred
-            key: NEXTAUTH_SECRET
-      # regional:
-      #   cert-manager:
-      #     config:
-      #       enableGatewayAPI: true
-EOF
+# FIXME: create values file for kcm resource
+# cat <<EOF >hack/values.kcm.yaml
+# type: enterprise
+# repository: true
+# release: true
+# # gateway:
+# #   routes:
+# #     - name: kcm-ui
+# #       kind: HTTPRoute
+# #       hostnames:
+# #         - kcm.local
+# #       rules:
+# #         - backendRefs:
+# #             - name: k0rdent-ui
+# #               port: 3000
+# #       gateways:
+# #         - name: envoy
+# #           namespace: kube-system
+# enterprise:
+#   providers:
+#     - name: cluster-api-provider-docker
+#       template: cluster-api-provider-docker-1-0-5
+#     - name: cluster-api-provider-k0sproject-k0smotron
+#       template: cluster-api-provider-k0sproject-k0smotron-1-0-12
+#     - name: projectsveltos
+#       template: projectsveltos-1-1-1
+# management:
+#   enabled: true
+#   access:
+#     enabled: true
+#     rules:
+#       - targetNamespaces:
+#           list:
+#             - default
+#         credentials:
+#           - docker-cluster-cred
+#           - remote-cluster-cred
+#         clusterTemplateChains:
+#           - adopted-cluster
+#           - docker-hosted-cp
+#           - remote-cluster
+#         serviceTemplateChains:
+#           - core
+#           - addon
+#           - optional
+#   providers:
+#     - name: cluster-api-provider-docker
+#     - name: cluster-api-provider-k0sproject-k0smotron
+#     - name: projectsveltos
+#   kcm:
+#     config:
+#       replicas: 1
+#       k0rdent-ui:
+#         enabled: true
+#         auth:
+#           basic:
+#             username: admin
+#             secretKeyRef:
+#               name: kcm-cred
+#               key: KCM_ADMIN_PWD
+#         nextAuth:
+#           secretKeyRef:
+#             name: kcm-cred
+#             key: NEXTAUTH_SECRET
+#       # regional:
+#       #   cert-manager:
+#       #     config:
+#       #       enableGatewayAPI: true
+# EOF
 
 # FIXME: deploy kcm resource
-helm upgrade kcm-resource ${HELM_REPO}/kcm \
-  --install \
-  --rollback-on-failure \
-  --namespace kcm-system \
-  --version "${KCM_VERSION}" \
-  --values hack/values.kcm.yaml
+# helm upgrade kcm-resource ${HELM_REPO}/kcm \
+#   --install \
+#   --rollback-on-failure \
+#   --namespace kcm-system \
+#   --version "${KCM_VERSION}" \
+#   --values hack/values.kcm.yaml
 
 # wait for KCM to be ready
 kubectl wait --for condition=Ready --namespace kcm-system --timeout 720s Management/kcm
