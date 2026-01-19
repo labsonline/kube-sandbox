@@ -32,6 +32,7 @@ Before starting, ensure you have the following installed on your system:
 - [Kind](https://kind.sigs.k8s.io/)
 - [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [Helm](https://helm.sh/)
+- [Flux](https://fluxcd.io/flux/)
 
 ---
 
@@ -52,6 +53,7 @@ PRIVATE_SSH_KEY_B64="${PRIVATE_SSH_KEY_B64}" envsubst < deployment/template/clus
 yq '.config' config/cert.yaml -o json >config/pki/openssl.json                # generate openssl config
 yq '.ca' config/cert.yaml -o json >config/pki/ca.json                         # generate root ca config
 yq '.intermediate' config/cert.yaml -o json >config/pki/intermediate.json     # generate intermediate ca config
+yq '.kcm' config/cert.yaml -o json >config/pki/kcm.json                       # generate kcm intermediate ca config
 
 # generate root ca
 cfssl genkey -config config/pki/openssl.json -initca config/pki/ca.json | cfssljson -bare config/pki/ca
@@ -63,6 +65,14 @@ cfssl gencert \
   -config config/pki/openssl.json \
   -profile intermediate \
   config/pki/intermediate.json | cfssljson -bare config/pki/intermediate
+
+# generate kcm intermediate ca
+cfssl gencert \
+  -ca config/pki/ca.pem \
+  -ca-key config/pki/ca-key.pem \
+  -config config/pki/openssl.json \
+  -profile intermediate \
+  config/pki/kcm.json | cfssljson -bare config/pki/kcm
 ```
 
 Use kind to create the management cluster, orbstack or docker-desktop can also be used.
@@ -87,7 +97,10 @@ grep -qa kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster --confi
 kubectl create namespace kcm-system --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f <(kustomize build --load-restrictor=LoadRestrictionsNone deployment/secret/mgmt)
 
-# TODO: install flux (helm or cli)
+# install flux
+helm upgrade flux "${HELM_REPO}/flux" --install --rollback-on-failure --namespace kcm-system --version 2.17.2
+
+# TODO: install msr
 ```
 
 ### 3. Install KCM
@@ -95,91 +108,129 @@ kubectl apply -f <(kustomize build --load-restrictor=LoadRestrictionsNone deploy
 Deploy KCM using Helm:
 
 ```shell
-# FIXME: deploy kcm
-# helm upgrade kcm "${HELM_REPO}/kcm" \
-#   --install \
-#   --rollback-on-failure \
-#   --namespace kcm-system \
-#   --version "${KCM_VERSION}" \
-#   --set enterprise.enabled=true
-
-# FIXME: create values file for kcm resource
-# cat <<EOF >hack/values.kcm.yaml
-# type: enterprise
-# repository: true
-# release: true
-# # gateway:
-# #   routes:
-# #     - name: kcm-ui
-# #       kind: HTTPRoute
-# #       hostnames:
-# #         - kcm.local
-# #       rules:
-# #         - backendRefs:
-# #             - name: k0rdent-ui
-# #               port: 3000
-# #       gateways:
-# #         - name: envoy
-# #           namespace: kube-system
-# enterprise:
-#   providers:
-#     - name: cluster-api-provider-docker
-#       template: cluster-api-provider-docker-1-0-5
-#     - name: cluster-api-provider-k0sproject-k0smotron
-#       template: cluster-api-provider-k0sproject-k0smotron-1-0-12
-#     - name: projectsveltos
-#       template: projectsveltos-1-1-1
-# management:
+# create values file for kcm controllers
+cat <<EOF >hack/values.kcmctrl.yaml
+flux:
+  enabled: true
+repositories:
+  - name: labsonline
+    url: oci://ghcr.io/labsonline/charts
+  # - name: bitnami
+  #   url: https://charts.bitnami.com/bitnami
+# gwapi:
 #   enabled: true
-#   access:
-#     enabled: true
-#     rules:
-#       - targetNamespaces:
-#           list:
-#             - default
-#         credentials:
-#           - docker-cluster-cred
-#           - remote-cluster-cred
-#         clusterTemplateChains:
-#           - adopted-cluster
-#           - docker-hosted-cp
-#           - remote-cluster
-#         serviceTemplateChains:
-#           - core
-#           - addon
-#           - optional
-#   providers:
-#     - name: cluster-api-provider-docker
-#     - name: cluster-api-provider-k0sproject-k0smotron
-#     - name: projectsveltos
-#   kcm:
-#     config:
-#       replicas: 1
-#       k0rdent-ui:
-#         enabled: true
-#         auth:
-#           basic:
-#             username: admin
-#             secretKeyRef:
-#               name: kcm-cred
-#               key: KCM_ADMIN_PWD
-#         nextAuth:
-#           secretKeyRef:
-#             name: kcm-cred
-#             key: NEXTAUTH_SECRET
-#       # regional:
-#       #   cert-manager:
-#       #     config:
-#       #       enableGatewayAPI: true
-# EOF
+#   service:
+#     annotations:
+#       external-dns.alpha.kubernetes.io/hostname: "*.k8s.orb.local"
+certmanager:
+  enabled: true
+kcm:
+  repository:
+    enabled: true
+  release:
+    enabled: true
+  issuer:
+    name: kcm-ca-issuer
+    certManagerNamespace: kcm-system
+    type: ca
+    secret:
+      name: kcm-ca-issuer-cred
+      create: false
+      # ca:
+      #   crt: null
+      #   key: null
+  # gateway:
+  #   name: kcm-gateway
+  #   className: envoy
+  #   listeners:
+  #     - name: https
+  #       port: 443
+  #       protocol: HTTPS
+  #       hostname: "*.kcm.k8s.orb.local"
+  #       allowedRoutes:
+  #         namespaces:
+  #           from: kcm-system
+  #       tls:
+  #         mode: Terminate
+  #         certificateRefs:
+  #           - name: kcm-gw-cert
+  #             issuer: kcm-ca-issuer
+  enterprise:
+    release:
+      enabled: false
+    ui:
+      enabled: true
+      nextAuth:
+        secretKeyRef:
+          name: kcm-cred
+          key: NEXTAUTH_SECRET
+      auth:
+        basic:
+          username: admin
+          secretKeyRef:
+            name: kcm-cred
+            key: KCM_ADMIN_PWD
+      # routes:
+      #   name: kcm-ui
+      #   kind: HTTPRoute
+      #   hostnames:
+      #     - dashboard.kcm.k8s.orb.local
+      #   rules:
+      #     - backendRefs:
+      #         - name: k0rdent-ui
+      #           port: 3000
+      #   gateways:
+      #     - name: envoy
+      #       namespace: kube-system
+management:
+  enabled: false
+  access:
+    enabled: false
+EOF
+
+# deploy kcm controllers
+helm upgrade kcm-controller "${HELM_REPO}/kcm" \
+  --install \
+  --rollback-on-failure \
+  --namespace kcm-system \
+  --version "${KCM_VERSION}" \
+  --values hack/values.kcmctrl.yaml
+
+# create values file for kcm resource
+cat <<EOF >hack/values.kcmres.yaml
+kcm:
+  enterprise:
+    enabled: true
+management:
+  access:
+    rules:
+      - targetNamespaces:
+          list:
+            - default
+        credentials:
+          - docker-cluster-cred
+          - remote-cluster-cred
+        clusterTemplateChains:
+          - adopted-cluster
+          - docker-hosted-cp
+          - remote-cluster
+        serviceTemplateChains:
+          - core
+          - addon
+          - optional
+  providers:
+    - name: cluster-api-provider-docker
+    - name: cluster-api-provider-k0sproject-k0smotron
+    - name: projectsveltos
+EOF
 
 # FIXME: deploy kcm resource
-# helm upgrade kcm-resource ${HELM_REPO}/kcm \
-#   --install \
-#   --rollback-on-failure \
-#   --namespace kcm-system \
-#   --version "${KCM_VERSION}" \
-#   --values hack/values.kcm.yaml
+helm upgrade kcm-resource ${HELM_REPO}/kcm \
+  --install \
+  --rollback-on-failure \
+  --namespace kcm-system \
+  --version "${KCM_VERSION}" \
+  --values hack/values.kcmres.yaml
 
 # wait for KCM to be ready
 kubectl wait --for condition=Ready --namespace kcm-system --timeout 720s Management/kcm
