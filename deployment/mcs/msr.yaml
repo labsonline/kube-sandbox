@@ -1,0 +1,18 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: addon
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/addon: enabled
+  serviceSpec:
+    priority: 100
+    services:
+      # TODO: msr
+      - template: msr-2-4-23
+        name: msr
+        namespace: kube-system
+        values: ""

@@ -21,3 +21,8 @@ spec:
         name: lgtm
         namespace: sre
         values: ""
+      # TODO: operator
+      - template: operator-1-0-0
+        name: operator
+        namespace: sre
+        values: ""
