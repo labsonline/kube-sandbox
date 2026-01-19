@@ -201,6 +201,13 @@ cat <<EOF >hack/values.kcmres.yaml
 kcm:
   enterprise:
     enabled: true
+    providers:
+      - name: cluster-api-provider-docker
+        template: docker-hosted-cp-1-0-4
+      - name: cluster-api-provider-k0sproject-k0smotron
+        template: cluster-api-provider-k0sproject-k0smotron-1-0-12
+      - name: projectsveltos
+        template: projectsveltos-1-1-1
 management:
   access:
     rules:
