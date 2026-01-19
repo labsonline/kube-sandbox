@@ -1,0 +1,24 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: operator-1-0-0-tpl
+spec:
+  interval: 10m0s
+  releaseName: operator-1-0-0-tpl
+  chartRef:
+    kind: HelmChart
+    name: operator-1-0-0-tpl
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmChart
+metadata:
+  name: operator-1-0-0-tpl
+spec:
+  interval: 10m0s
+  chart: servicetemplate/operator-service-template
+  version: 1.0.0
+  reconcileStrategy: ChartVersion
+  sourceRef:
+    kind: HelmRepository
+    name: labsonline-catalog
