@@ -40,3 +40,14 @@ intermediate:
       ST: Toronto
       O: Kubernetes
       OU: Certificate Authority
+kcm:
+  CN: KCM Intermediate CA
+  key:
+    algo: rsa
+    size: 4096
+  names:
+    - C: CA
+      L: ON
+      ST: Toronto
+      O: ANSELMES
+      OU: IS/IT
