@@ -10,12 +10,11 @@ spec:
   serviceSpec:
     priority: 100
     services:
-      - template: ca-1-0-3
+      - template: ca-1-0-4
         name: ca
         namespace: cert-manager
         values: |
 
-          issuers: []
           cert-manager:
             enabled: true
             enableCertificateOwnerRef: true
@@ -28,11 +27,6 @@ spec:
             podDnsConfig:
               nameservers:
                 - 1.1.1.1
-      - template: ca-1-0-3
-        name: ca-issuer
-        namespace: cert-manager
-        values: |
-
           issuers:
             - name: ca-issuer-self-signed
               clustered: true
@@ -49,10 +43,6 @@ spec:
                 ca:
                   crt: null
                   key: null
-          cert-manager:
-            enabled: false
-          trust-manager:
-            enabled: false
       # - template: edns-1-19-0
       #   name: edns
       #   namespace: kube-system
@@ -94,7 +84,7 @@ spec:
       #   namespace: kube-system
       #   values: |
 
-      #     gwapi:
+      #     envoy:
       #       config:
       #         envoyGateway:
       #           gateway:
@@ -110,20 +100,9 @@ spec:
       #           external-dns.alpha.kubernetes.io/hostname: "" # TODO: gwapi domain
       #       topologyInjector:
       #         enabled: true
-      # - template: gwapi-1-0-3
-      #   name: gwclass
-      #   namespace: kube-system
-      #   values: |
-
       #     classes:
       #       - name: envoy
       #         description: "Default Envoy Gateway class"
-      #     gwapi:
-      #       enabled: false
-      #       # config:
-      #       #   envoyGateway:
-      #       #     gateway:
-      #       #       controllerName: gateway.envoyproxy.io/gatewayclass-controller
       # - template: gateway-1-0-3
       #   name: gateway
       #   namespace: kube-system

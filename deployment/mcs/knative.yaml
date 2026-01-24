@@ -20,122 +20,98 @@ spec:
           resources:
             rabbitmq:
               enabled: false
-          event:
-            enabled: false
-            sources:
-              enabled: false
-            backstage:
-              enabled: false
-          server:
-            enabled: false
           operator:
             enabled: true
-      # - template: knative-1-20-0
-      #   name: knative-serving
-      #   namespace: knative
-      #   values: |
-
-      #     version: v1.20.0
-      #     server:
-      #       enabled: true
-      #       domain: "" # TODO: knative domain
-      #       replicas: 1
-      #       security:
-      #         enabled: false
-      #         guard: false
-      #       network:
-      #         gatewayAPI:
-      #           install: true
-      #           version: v1.20.0
-      #           external:
-      #             class: envoy-gateway
-      #             name: kube-system/http-gateway
-      #             service: kube-system/envoy-kube-system-http-gateway-3e72d172
-      #           internal:
-      #             class: envoy-gateway
-      #             name: kube-system/http-gateway
-      #             service: kube-system/envoy-kube-system-http-gateway-3e72d172
-      #         kourier:
-      #           enabled: false
-      #           service:
-      #             type: LoadBalancer
-      #       ingress:
-      #         type: gateway-api
-      #       certmanager:
-      #         enabled: true
-      #       issuerRef:
-      #         clusterIssuer:
-      #           name: ca-issuer
-      #         localIssuer:
-      #           name: self-signed-ca-issuer
-      #     operator:
-      #       enabled: false
-      # - template: knative-1-20-0
-      #   name: knative-eventing
-      #   namespace: knative
-      #   values: |
-
-      #     version: v1.20.0
-      #     resources:
-      #       rabbitmq:
-      #         enabled: false
-      #         brokers:
-      #           - name: default-broker
-      #             config:
-      #               name: default-config
-      #               queueType: quorum
-      #               create: false
-      #             deadLetterSink:
-      #               ref:
-      #                 apiVersion: serving.knative.dev/v1
-      #                 kind: Service
-      #                 name: event-display
-      #         sources:
-      #           - name: rabbitmq-source
-      #             exchangeName: eventing-rabbitmq-source
-      #             queueName: eventing-rabbitmq-source
-      #             sinkRef:
-      #               apiVersion: serving.knative.dev/v1
-      #               kind: Service
-      #               name: event-display
-      #         clusterRef:
-      #           name: rabbitmq
-      #           vhost: /knative
-      #     event:
-      #       enabled: false
-      #       defaultBrokerClass: MTChannelBasedBroker
-      #       config:
-      #         enabled: false
-      #         channel:
-      #           default-ch-config: |
-      #             clusterDefault:
-      #               apiVersion: messaging.knative.dev/v1beta1
-      #               kind: InMemoryChannel
-      #               spec:
-      #                 delivery:
-      #                   backoffDelay: PT0.5S
-      #                   backoffPolicy: exponential
-      #                   retry: 5
-      #         broker:
-      #           channel-template-spec: |
-      #             apiVersion: messaging.knative.dev/v1beta1
-      #             kind: InMemoryChannel
-      #             spec:
-      #               delivery:
-      #                 backoffDelay: PT0.5S
-      #                 backoffPolicy: exponential
-      #                 retry: 5
-      #       sources:
-      #         enabled: false
-      #         ceph: false
-      #         github: false
-      #         gitlab: false
-      #         kafka: false
-      #         natss: false
-      #         rabbitmq: false
-      #         redis: false
-      #       backstage:
-      #         enabled: false
-      #         version: v1.20.0
-      #     operator:
-      #       enabled: false
+          # server:
+          #   enabled: true
+          #   domain: "" # TODO: knative domain
+          #   replicas: 1
+          #   security:
+          #     enabled: false
+          #     guard: false
+          #   network:
+          #     gatewayAPI:
+          #       install: true
+          #       version: v1.20.0
+          #       external:
+          #         class: envoy-gateway
+          #         name: kube-system/http-gateway
+          #         service: kube-system/envoy-kube-system-http-gateway-3e72d172
+          #       internal:
+          #         class: envoy-gateway
+          #         name: kube-system/http-gateway
+          #         service: kube-system/envoy-kube-system-http-gateway-3e72d172
+          #     kourier:
+          #       enabled: false
+          #       service:
+          #         type: LoadBalancer
+          #   ingress:
+          #     type: gateway-api
+          #   certmanager:
+          #     enabled: true
+          #   issuerRef:
+          #     clusterIssuer:
+          #       name: ca-issuer
+          #     localIssuer:
+          #       name: self-signed-ca-issuer
+          # resources:
+          #   rabbitmq:
+          #     enabled: false
+          #     brokers:
+          #       - name: default-broker
+          #         config:
+          #           name: default-config
+          #           queueType: quorum
+          #           create: false
+          #         deadLetterSink:
+          #           ref:
+          #             apiVersion: serving.knative.dev/v1
+          #             kind: Service
+          #             name: event-display
+          #     sources:
+          #       - name: rabbitmq-source
+          #         exchangeName: eventing-rabbitmq-source
+          #         queueName: eventing-rabbitmq-source
+          #         sinkRef:
+          #           apiVersion: serving.knative.dev/v1
+          #           kind: Service
+          #           name: event-display
+          #     clusterRef:
+          #       name: rabbitmq
+          #       vhost: /knative
+          # event:
+          #   enabled: false
+          #   defaultBrokerClass: MTChannelBasedBroker
+          #   config:
+          #     enabled: false
+          #     channel:
+          #       default-ch-config: |
+          #         clusterDefault:
+          #           apiVersion: messaging.knative.dev/v1beta1
+          #           kind: InMemoryChannel
+          #           spec:
+          #             delivery:
+          #               backoffDelay: PT0.5S
+          #               backoffPolicy: exponential
+          #               retry: 5
+          #     broker:
+          #       channel-template-spec: |
+          #         apiVersion: messaging.knative.dev/v1beta1
+          #         kind: InMemoryChannel
+          #         spec:
+          #           delivery:
+          #             backoffDelay: PT0.5S
+          #             backoffPolicy: exponential
+          #             retry: 5
+          #   sources:
+          #     enabled: false
+          #     ceph: false
+          #     github: false
+          #     gitlab: false
+          #     kafka: false
+          #     natss: false
+          #     rabbitmq: false
+          #     redis: false
+          #   backstage:
+          #     enabled: false
+          #     version: v1.20.0

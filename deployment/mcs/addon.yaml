@@ -22,7 +22,7 @@ spec:
         namespace: sre
         values: ""
       # TODO: operator
-      - template: operator-1-0-0
+      - template: operator-1-0-1
         name: operator
         namespace: sre
         values: ""
