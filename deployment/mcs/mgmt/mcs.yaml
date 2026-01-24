@@ -20,7 +20,7 @@ spec:
       - template: prometheus-operator-crd
         name: prometheus-operator-crd
         namespace: kube-system
-      - template: ca-1-0-3
+      - template: ca-1-0-4
         name: ca-issuer
         namespace: cert-manager
         values: |
@@ -81,12 +81,12 @@ spec:
       #             secretKeyRef:
       #               name: cloudflare-api-token
       #               key: cf-api-token
-      # - template: gwapi-1-0-2
+      # - template: gwapi-1-0-3
       #   name: gwapi
       #   namespace: kube-system
       #   values: |
 
-      #     gwapi:
+      #     envoy:
       #       config:
       #         envoyGateway:
       #           gateway:
@@ -102,20 +102,9 @@ spec:
       #           external-dns.alpha.kubernetes.io/hostname: "" # TODO: gwapi domain
       #       topologyInjector:
       #         enabled: true
-      # - template: gwapi-1-0-2
-      #   name: gwclass
-      #   namespace: kube-system
-      #   values: |
-
       #     classes:
       #       - name: envoy
       #         description: "Default Envoy Gateway class"
-      #     gwapi:
-      #       enabled: false
-      #       # config:
-      #       #   envoyGateway:
-      #       #     gateway:
-      #       #       controllerName: gateway.envoyproxy.io/gatewayclass-controller      # - template: gateway-1-0-2
       # - template: gateway-1-0-3
       #   name: gateway
       #   namespace: kube-system
