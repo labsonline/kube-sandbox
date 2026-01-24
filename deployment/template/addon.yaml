@@ -5,9 +5,10 @@ metadata:
   name: addon
 spec:
   supportedTemplates:
+    - name: data-1-0-0
     - name: knative-1-20-0
     - name: monitoring-3.7.1
     - name: msr-4-13-3
-    - name: openstack-1-0-2
-    - name: operator-1-0-0
+    - name: openstack-1-0-3
+    - name: operator-1-0-1
     - name: pinniped-2-4-23

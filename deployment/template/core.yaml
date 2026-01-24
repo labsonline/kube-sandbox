@@ -5,7 +5,7 @@ metadata:
   name: core
 spec:
   supportedTemplates:
-    - name: ca-1-0-3
+    - name: ca-1-0-4
     - name: edns-1-19-0
     - name: gateway-1-0-3
-    - name: gwapi-1-0-2
+    - name: gwapi-1-0-3
