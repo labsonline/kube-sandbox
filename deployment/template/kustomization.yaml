@@ -9,7 +9,10 @@ resources:
   - cluster
   - service
   - source
-  - crd.yaml
-  - core.yaml
   - addon.yaml
+  - cicd.yaml
+  - core.yaml
+  - crd.yaml
   - optional.yaml
+  - sre.yaml
+  - ucp.yaml

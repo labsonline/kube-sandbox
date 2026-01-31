@@ -1,0 +1,7 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: sre
+spec:
+  supportedTemplates: []
