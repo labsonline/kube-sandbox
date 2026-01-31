@@ -1,0 +1,9 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: ucp
+spec:
+  supportedTemplates:
+    - name: openstack-1-0-3
+    - name: vault-0-23-5
