@@ -1,0 +1,8 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: cicd
+spec:
+  supportedTemplates:
+    - name: msr-4-13-3
