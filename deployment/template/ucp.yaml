@@ -5,5 +5,6 @@ metadata:
   name: ucp
 spec:
   supportedTemplates:
+    - name: netbox-7-4-1
     - name: openstack-1-0-3
     - name: vault-0-23-5

@@ -1,0 +1,24 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: netbox-7-4-1-tpl
+spec:
+  interval: 10m0s
+  releaseName: netbox-7-4-1-tpl
+  chartRef:
+    kind: HelmChart
+    name: netbox-7-4-1-tpl
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmChart
+metadata:
+  name: netbox-7-4-1-tpl
+spec:
+  interval: 10m0s
+  chart: servicetemplate/netbox-service-template
+  version: 7.4.1
+  reconcileStrategy: ChartVersion
+  sourceRef:
+    kind: HelmRepository
+    name: labsonline-catalog
