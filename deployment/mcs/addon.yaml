@@ -16,13 +16,13 @@ spec:
         name: pinniped
         namespace: kube-system
         values: ""
-      # TODO: lgtm
+      # TODO: monitoring
       - template: monitoring-3.7.1
-        name: lgtm
+        name: monitoring
         namespace: sre
         values: ""
       # TODO: operator
       - template: operator-1-0-2
         name: operator
-        namespace: sre
+        namespace: operators
         values: ""
