@@ -5,7 +5,8 @@ metadata:
   name: ucp
 spec:
   supportedTemplates:
-    - name: maas-3-6-2
+    - name: ldap-2025-2-0
     - name: netbox-7-4-1
     - name: openstack-1-0-3
     - name: vault-0-23-5
+    # - name: maas-3-6-2

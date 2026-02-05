@@ -17,6 +17,7 @@ resources:
   - gateway.yaml
   - gwapi.yaml
   - knative.yaml
+  - ldap.yaml
   - monitoring.yaml
   - msr.yaml
   - netbox.yaml
@@ -24,3 +25,4 @@ resources:
   - operator.yaml
   - pinniped.yaml
   - vault.yaml
+  # - maas.yaml
