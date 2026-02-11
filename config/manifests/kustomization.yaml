@@ -1,0 +1,11 @@
+namespace: kcm-system
+buildMetadata:
+  - managedByLabel
+  - originAnnotations
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - repository.yaml
+  - release.yaml
+  - management.yaml
+  - accessmanagement.yaml

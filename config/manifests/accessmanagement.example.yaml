@@ -1,0 +1,24 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: AccessManagement
+metadata:
+  name: kcm
+  labels:
+    k0rdent.mirantis.com/component: kcm
+spec:
+  accessRules:
+    - targetNamespaces:
+        list:
+          - default
+      serviceTemplateChains:
+        - crd
+        - core
+        - addon
+      clusterTemplateChains:
+        - adopted-cluster
+        - docker-hosted-cp
+        - remote-cluster
+      credentials:
+        - adopted-cluster-cred
+        - docker-cluster-cred
+        - remote-cluster-cred

@@ -1,0 +1,40 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kcm-templates
+  namespace: kcm-system
+  labels:
+    k0rdent.mirantis.com/managed: "true"
+spec:
+  interval: 10m0s
+  provider: generic
+  type: oci
+  url: oci://registry.mirantis.com/k0rdent-enterprise/charts
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: labsonline-catalog
+  namespace: kcm-system
+  labels:
+    k0rdent.mirantis.com/managed: "true"
+spec:
+  interval: 10m0s
+  provider: generic
+  type: oci
+  url: oci://ghcr.io/labsonline/charts
+  # secretRef:
+  #   name: ""
+# ---
+# apiVersion: source.toolkit.fluxcd.io/v1
+# kind: HelmRepository
+# metadata:
+#   name: bitnami-catalog
+#   namespace: kcm-system
+#   labels:
+#     k0rdent.mirantis.com/managed: "true"
+# spec:
+#   interval: 10m0s
+#   provider: generic
+#   type: oci
+#   url: oci://registry-1.docker.io/bitnamicharts
