@@ -92,8 +92,6 @@ Create a management cluster using the generated configuration:
 
 ```shell
 grep -qa kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster --config config/kind/kcm.yaml
-
-# TODO: install msr
 ```
 
 ### 3. Install KCM
@@ -101,7 +99,24 @@ grep -qa kcm <(kind get clusters) >/dev/null 2>&1 || kind create cluster --confi
 Deploy KCM using Helm:
 
 ```shell
-# TODO: install kcm
+cp config/kcm.example.yaml config/kcm.yaml
+
+cp config/manifests/repository.example.yaml config/manifests/repository.yaml
+cp config/manifests/release.example.yaml config/manifests/release.yaml
+cp config/manifests/management.example.yaml config/manifests/management.yaml
+cp config/manifests/accessmanagement.example.yaml config/manifests/accessmanagement.yaml
+
+# install kcm
+helm upgrade kcm 
+  oci://registry.mirantis.com/k0rdent-enterprise/charts/k0rdent-enterprise \
+  --install \
+  --create-namespace \
+  --namespace kcm-system \
+  --version 1.2.3 \
+  --values config/kcm.yaml
+
+# deploy kcm resource
+kubectl apply -f <(kustomize build config/manifests)
 
 # wait for KCM to be ready
 kubectl wait --for condition=Ready --namespace kcm-system --timeout 720s Management/kcm
