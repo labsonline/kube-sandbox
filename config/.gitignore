@@ -5,6 +5,7 @@
 !.gitignore
 
 !*example*
+!kustomization.yaml
 !pki/.gitkeep
 
 # ...even if they are in subdirectories
