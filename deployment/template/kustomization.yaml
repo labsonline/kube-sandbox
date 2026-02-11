@@ -8,7 +8,6 @@ generatorOptions:
 resources:
   - cluster
   - service
-  - source
   - addon.yaml
   - cicd.yaml
   - core.yaml
