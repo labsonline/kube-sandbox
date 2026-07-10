@@ -38,8 +38,8 @@ spec:
         #   namespace: kcm-system
         # FIXME: create with eso
         config:
-          MAAS_API_KEY: 33e8yNr8FNgfwnheGi:dIPTEoK2NA0dTZprOh:dZdiyuiYocDCGmEZoY84Mota8JORMIZH
-          MAAS_ENDPOINT: http://192.168.2.10:5240/MAAS
+          MAAS_API_KEY: ""
+          MAAS_ENDPOINT: http://127.0.0.1:5240/MAAS
         deployment:
           containers:
             - name: manager
