@@ -1,0 +1,96 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt-gateway
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  serviceSpec:
+    priority: 100
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
+      - template: gateway-1-0-3
+        name: gateway
+        namespace: kube-system
+        # dependsOn:
+        #   - name: envoy
+        #   - name: ca-issuer
+        #     namespace: kcm-system
+        values: |
+          gateways:
+            - name: http-gateway
+              className: envoy
+              listeners:
+                - name: http
+                  port: 80
+                  protocol: HTTP
+                  hostname: "*.kcm.testplay.io"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: HTTPRoute
+                # - name: https
+                #   port: 443
+                #   protocol: HTTPS
+                #   hostname: "*.kcm.testplay.io"
+                #   allowedRoutes:
+                #     namespaces:
+                #       from: All
+                #     kinds:
+                #       - kind: HTTPRoute
+                #   tls:
+                #     mode: Terminate
+                #     certificateRefs:
+                #       - name: https-gw-cert
+                #         issuer: ca-issuer
+            - name: tls-gateway
+              className: envoy
+              listeners:
+                - name: tls
+                  port: 443
+                  protocol: TLS
+                  hostname: "*.kcm.testplay.io"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: TLSRoute
+                  tls:
+                    mode: Passthrough
+          routes:
+            - name: hubble
+              kind: HTTPRoute
+              hostnames:
+                - hubble.kcm.testplay.io
+              rules:
+                - backendRefs:
+                  - name: hubble-ui
+                    port: 80
+                # - filters:
+                #     - type: RequestRedirect
+                #       requestRedirect:
+                #         scheme: https
+                #         statusCode: 301
+              gateways:
+                - name: http-gateway
+            - name: kcm
+              kind: HTTPRoute
+              hostnames:
+                - console.kcm.testplay.io
+              rules:
+                - backendRefs:
+                  - name: kcm-k0rdent-ui
+                    port: 3000
+                # - filters:
+                #     - type: RequestRedirect
+                #       requestRedirect:
+                #         scheme: https
+                #         statusCode: 301
+              gateways:
+                - name: http-gateway
