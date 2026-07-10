@@ -1,0 +1,46 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: Management
+metadata:
+  name: kcm
+  labels:
+    k0rdent.mirantis.com/component: kcm
+spec:
+  release: k0rdent-enterprise-1-4-0
+  core:
+    capi: {}
+    kcm:
+      config:
+        regional:
+          cert-manager:
+            config:
+              enableGatewayAPI: true
+  providers:
+    - name: cluster-api-provider-aws
+    - name: cluster-api-provider-azure
+    - name: cluster-api-provider-docker
+    - name: cluster-api-provider-gcp
+    - name: cluster-api-provider-infoblox
+    - name: cluster-api-provider-ipam
+    - name: cluster-api-provider-k0sproject-k0smotron
+    - name: cluster-api-provider-kubevirt
+    - name: cluster-api-provider-openstack
+    - name: cluster-api-provider-vsphere
+    - name: projectsveltos
+    - name: cluster-api-provider-maas
+      template: cluster-api-provider-maas-0-9-0
+      config:
+        global:
+          registry: ""
+        # configSecret:
+        #   create: false
+        #   name: maas-variables
+        #   namespace: kcm-system
+        # FIXME: create with eso
+        config:
+          MAAS_API_KEY: 33e8yNr8FNgfwnheGi:dIPTEoK2NA0dTZprOh:dZdiyuiYocDCGmEZoY84Mota8JORMIZH
+          MAAS_ENDPOINT: http://192.168.2.10:5240/MAAS
+        deployment:
+          containers:
+            - name: manager
+              imageUrl: ghcr.io/labsonline/capi/cluster-api-provider-maas-controller:v1.0.0-arm64
