@@ -2,8 +2,12 @@
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: ServiceTemplateChain
 metadata:
-  name: csi
+  name: core
   namespace: kcm-system
 spec:
   supportedTemplates:
-    - name: csi-1-0-7
+    - name: ca-1-0-4
+    - name: edns-1-19-0
+    - name: eso-2-5-0
+    - name: gateway-1-0-3
+    - name: gwapi-1-0-3
