@@ -1,0 +1,18 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ClusterTemplate
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  name: maas-standalone-cp-0-1-2
+  namespace: kcm-system
+spec:
+  helm:
+    chartSpec:
+      chart: cluster/maas-standalone-cp
+      version: 0.1.2
+      interval: 10m0s
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: labsonline-catalog
