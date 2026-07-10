@@ -1,0 +1,48 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt-external-secret
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  serviceSpec:
+    priority: 100
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
+      # FIXME: externaldns
+      # - template: edns-1-19-0
+      #   name: external-dns
+      #   namespace: kube-system
+      #   dependsOn:
+      #     - name: external-secret
+      #       namespace: sre
+      #   values: |
+      #     endpoints: []
+      #     externaldns:
+      #       enabled: true
+      #       txtOwnerId: mgmt
+      #       txtPrefix: kcm
+      #       provider:
+      #         name: rfc2136
+      #       domainFilters:
+      #         - kcm.testplay.io
+      #       env:
+      #         - name: EXTERNAL_DNS_RFC2136_TSIG_KEYNAME
+      #           value: externaldns
+      #         - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
+      #           valueFrom:
+      #             secretKeyRef:
+      #               name: tsig-secret
+      #               key: secret
+      #       extraArgs:
+      #         - --create-ptr
+      #         - --rfc2136-tsig-axfr
+      #         - --rfc2136-host=192.168.2.10
+      #         - --rfc2136-port=53
+      #         - --rfc2136-tsig-secret-alg=hmac-sha256
+      #         - --rfc2136-zone=kcm.testplay.io

@@ -1,0 +1,44 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt-gwapi-envoy
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  serviceSpec:
+    priority: 100
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
+      - template: gwapi-1-0-3
+        name: envoy
+        namespace: kube-system
+        values: |
+          envoy:
+            proxies:
+              - name: envoy-proxy
+                mergeGateways: false
+                logging:
+                  level:
+                    default: info
+            classes:
+              - name: envoy
+                parametersRef:
+                  group: gateway.envoyproxy.io
+                  kind: EnvoyProxy
+                  name: envoy-proxy
+                  namespace: kube-system
+            config:
+              envoyGateway:
+                gateway:
+                  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+                provider:
+                  type: Kubernetes
+                logging:
+                  level:
+                    default: info
+                extensionApis: {}
