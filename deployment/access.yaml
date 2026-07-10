@@ -1,0 +1,18 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: AccessManagement
+metadata:
+  name: kcm
+  labels:
+    k0rdent.mirantis.com/component: kcm
+spec:
+  accessRules:
+    - targetNamespaces:
+        list:
+          - default
+      clusterTemplateChains:
+        - maas
+      serviceTemplateChains:
+        - cni
+        - csi
+        - core
