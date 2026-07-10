@@ -107,7 +107,7 @@ cp config/manifests/management.example.yaml config/manifests/management.yaml
 cp config/manifests/accessmanagement.example.yaml config/manifests/accessmanagement.yaml
 
 # install kcm
-helm upgrade kcm 
+helm upgrade kcm \
   oci://registry.mirantis.com/k0rdent-enterprise/charts/k0rdent-enterprise \
   --install \
   --create-namespace \
