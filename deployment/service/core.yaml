@@ -1,0 +1,146 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: core
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+  serviceSpec:
+    priority: 100
+    services:
+      - template: gwapi-1-0-3
+        name: envoy
+        namespace: kube-system
+        values: |
+          envoy:
+            proxies:
+              - name: envoy-proxy
+                mergeGateways: false
+                logging:
+                  level:
+                    default: info
+            classes:
+              - name: envoy
+                parametersRef:
+                  group: gateway.envoyproxy.io
+                  kind: EnvoyProxy
+                  name: envoy-proxy
+                  namespace: kube-system
+            config:
+              envoyGateway:
+                gateway:
+                  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+                provider:
+                  type: Kubernetes
+                logging:
+                  level:
+                    default: info
+                extensionApis: {}
+      - template: ca-1-0-4
+        name: cert-manager
+        namespace: cert-manager
+        # dependsOn:
+        #   - name: envoy
+        #     namespace: kube-system
+        values: |
+          issuers:
+            - name: ca-issuer-self-signed
+              clustered: true
+              selfSigned: true
+              secret:
+                create: false
+          certmanager:
+            enabled: true
+            config:
+              enableGatewayAPI: true
+      - template: ca-1-0-4
+        name: ca-issuer
+        namespace: cert-manager
+        # dependsOn:
+        #   - name: cert-manager
+        values: |
+          issuers:
+            - name: ca-issuer
+              clustered: true
+              type: acme
+              secret:
+                create: false
+                tsig: tsig-secret
+              acme:
+                email: kcm@testplay.io
+                server: https://vault.testplay.io:8200/v1/kcm/pki/acme/directory
+                zones:
+                  - {{ .Cluster.metadata.annotations.domain }}
+                provider:
+                  type: rfc2136
+                  nameserver: 192.168.2.10:53
+                  tsigAlgorithm: HMACSHA256
+                  tsigKeyName: certmanager
+                  tsigSecretSecretRef:
+                    name: tsig-secret
+                    key: secret
+      - template: gateway-1-0-3
+        name: gateway
+        namespace: kube-system
+        # dependsOn:
+        #   - name: envoy
+        #   - name: ca-issuer
+        #     namespace: cert-manager
+        values: |
+          gateways:
+            - name: http-gateway
+              className: envoy
+              listeners:
+                - name: http
+                  port: 80
+                  protocol: HTTP
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: HTTPRoute
+                # - name: https
+                #   port: 443
+                #   protocol: HTTPS
+                #   hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                #   allowedRoutes:
+                #     namespaces:
+                #       from: All
+                #     kinds:
+                #       - kind: HTTPRoute
+                #   tls:
+                #     mode: Terminate
+                #     certificateRefs:
+                #       - name: https-gw-cert
+                #         issuer: ca-issuer
+            - name: tls-gateway
+              className: envoy
+              listeners:
+                - name: tls
+                  port: 443
+                  protocol: TLS
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: TLSRoute
+                  tls:
+                    mode: Passthrough
+            - name: tcp-gateway
+              className: envoy
+              listeners:
+                - name: tcp
+                  port: 80
+                  protocol: TCP
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: TCPRoute
+      # TODO: externalsecret
+      # TODO: externaldns
