@@ -1,9 +1,0 @@
----
-apiVersion: k0rdent.mirantis.com/v1beta1
-kind: ClusterTemplateChain
-metadata:
-  name: openstack-standalone-cp
-spec:
-  supportedTemplates:
-    - name: openstack-standalone-cp-1-0-21
-    - name: openstack-standalone-cp-1-0-22
