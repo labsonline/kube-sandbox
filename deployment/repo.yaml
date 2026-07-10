@@ -1,0 +1,13 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: labsonline-catalog
+  namespace: kcm-system
+  labels:
+    k0rdent.mirantis.com/managed: 'true'
+spec:
+  provider: generic
+  interval: 10m0s
+  type: oci
+  url: oci://ghcr.io/labsonline/charts
