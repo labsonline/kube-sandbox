@@ -1,0 +1,16 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ProviderTemplate
+metadata:
+  name: cluster-api-provider-maas-0-9-0
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  helm:
+    chartSpec:
+      chart: provider/cluster-api-provider-maas
+      version: 0.9.0
+      interval: 10m0s
+      sourceRef:
+        kind: HelmRepository
+        name: labsonline-catalog
