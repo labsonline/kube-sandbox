@@ -14,94 +14,95 @@ spec:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      # - template: eso-2-5-0
-      #   name: external-secret-operator
-      #   namespace: operators
-      #   dependsOn: []
-      #   values: |
-      #     eso:
-      #       enabled: true
-      #       replicaCount: 1
-      #       bitwarden-sdk-server:
-      #         enabled: false
-      #         namespaceOverride: ""
+      - template: eso-2-5-0
+        name: external-secret-operator
+        namespace: operators
+        dependsOn: []
+        values: |
+          eso:
+            enabled: true
+            replicaCount: 1
+            bitwarden-sdk-server:
+              enabled: false
+              namespaceOverride: ""
       # FIXME: externalsecret
-      # - template: eso-2-5-0
-      #   name: external-secret
-      #   namespace: sre
-      #   dependsOn:
-      #     - name: external-secret-operator
-      #       namespace: operators
-      #     - name: vault
-      #       namespace: sre
-      #   values: |
-      #     generators: []
-      #       # - kind: ClusterGenerator
-      #       #   name: pwdgen
-      #       #   generator:
-      #       #     passwordSpec:
-      #       #       length: 42
-      #       #       digits: 5
-      #       #       symbols: 5
-      #       #       symbolCharacters: -_$@
-      #       #       noUpper: false
-      #       #       allowRepeat: true
-      #       # - kind: ClusterGenerator
-      #       #   name: uuidgen
-      #       #   type: UUID
-      #       #   generator:
-      #       #     uuidSpec: {}
-      #       # - kind: ClusterGenerator
-      #       #   name: sshkeygen
-      #       #   type: SSHKey
-      #       #   generator:
-      #       #     sshKeySpec:
-      #       #       keyType: ed25519
-      #     secretStores: []
-      #       # - kind: ClusterSecretStore
-      #       #   name: vault
-      #       #   provider:
-      #       #     vault:
-      #       #       server: https://vault.testplay.io:8200
-      #       #       namespace: sandbox
-      #       #       path: secret
-      #       #       version: v2
-      #       #       checkAndSet:
-      #       #         required: true
-      #       #       auth:
-      #       #         appRole:
-      #       #           path: approle
-      #       #           roleId: 44692804-1ae0-a54d-cb85-366ade340c54
-      #       #           secretRef:
-      #       #             name: external-secrets-vault-credential
-      #       #             namespace: sre
-      #       #             key: secret-id
-      #     externalSecrets: []
-      #       # - kind: ExternalSecret
-      #       #   name: tsig-secret
-      #       #   namespace: cert-manager
-      #       #   externalSecretSpec:
-      #       #     secretStoreRef:
-      #       #       name: vault
-      #       #       kind: ClusterSecretStore
-      #       #     target:
-      #       #       name: tsig-secret
-      #       #     data:
-      #       #       - secretKey: secret
-      #       #         remoteRef:
-      #       #           key: maas/tsig
-      #       #           property: certmanager
-      #       # - kind: ExternalSecret
-      #       #   name: tsig-secret
-      #       #   namespace: kube-system
-      #       #   externalSecretSpec:
-      #       #     secretStoreRef:
-      #       #       name: vault
-      #       #       kind: ClusterSecretStore
-      #       #     target:
-      #       #       name: tsig-secret
-      #       #     data:
-      #       #       - secretKey: secret
-      #       #         remoteRef:
-      #       #           key: maas/tsig
-      #       #           property: externaldns
+      - template: eso-2-5-0
+        name: external-secret
+        namespace: sre
+        # dependsOn:
+        #   - name: external-secret-operator
+        #     namespace: operators
+        #   - name: vault
+        #     namespace: sre
+        values: |
+          generators:
+            - kind: ClusterGenerator
+              name: pwdgen
+              generator:
+                passwordSpec:
+                  length: 42
+                  digits: 5
+                  symbols: 5
+                  symbolCharacters: -_$@
+                  noUpper: false
+                  allowRepeat: true
+            # - kind: ClusterGenerator
+            #   name: uuidgen
+            #   type: UUID
+            #   generator:
+            #     uuidSpec: {}
+            # - kind: ClusterGenerator
+            #   name: sshkeygen
+            #   type: SSHKey
+            #   generator:
+            #     sshKeySpec:
+            #       keyType: ed25519
+          secretStores:
+            - kind: ClusterSecretStore
+              name: vault
+              provider:
+                vault:
+                  server: https://vault.sandbox.testplay.io
+                  namespace: sandbox
+                  path: secret
+                  version: v2
+                  checkAndSet:
+                    required: true
+                  auth:
+                    appRole:
+                      path: approle
+                      # FIXME: replace with the secret-id of the approle created in vault
+                      roleId: 3e95ed03-b88d-a929-e279-46b6961cd70b
+                      secretRef:
+                        name: external-secrets-vault-credential
+                        namespace: sre
+                        key: secret-id
+          externalSecrets:
+            - kind: ExternalSecret
+              name: tsig-secret
+              namespace: kcm-system
+              externalSecretSpec:
+                secretStoreRef:
+                  name: vault
+                  kind: ClusterSecretStore
+                target:
+                  name: tsig-secret
+                data:
+                  - secretKey: secret
+                    remoteRef:
+                      key: maas/tsig
+                      property: certmanager
+            - kind: ExternalSecret
+              name: tsig-secret
+              namespace: kube-system
+              externalSecretSpec:
+                secretStoreRef:
+                  name: vault
+                  kind: ClusterSecretStore
+                target:
+                  name: tsig-secret
+                data:
+                  - secretKey: secret
+                    remoteRef:
+                      key: maas/tsig
+                      property: externaldns
