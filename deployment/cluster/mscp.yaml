@@ -96,7 +96,7 @@ spec:
             # bgp:
             #   enabled: true
             #   peer:
-            #     # authSecretRef: ""
+            #     authSecretRef: ""
             #     addressFamilies:
             #       - afi: ipv4
             #         safi: unicast
