@@ -36,10 +36,8 @@ spec:
         #   create: false
         #   name: maas-variables
         #   namespace: kcm-system
-        # FIXME: create with eso
         config:
-          MAAS_API_KEY: ""
-          MAAS_ENDPOINT: http://127.0.0.1:5240/MAAS
+          MAAS_ENDPOINT: http://maas.sandbox.testplay.io:5240/MAAS
         deployment:
           containers:
             - name: manager

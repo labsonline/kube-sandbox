@@ -72,7 +72,7 @@ spec:
                     appRole:
                       path: approle
                       # FIXME: replace with the secret-id of the approle created in vault
-                      roleId: 3e95ed03-b88d-a929-e279-46b6961cd70b
+                      roleId: ""
                       secretRef:
                         name: external-secrets-vault-credential
                         namespace: sre
@@ -106,3 +106,19 @@ spec:
                     remoteRef:
                       key: maas/tsig
                       property: externaldns
+            - kind: ExternalSecret
+              name: maas-variables
+              namespace: kcm-system
+              externalSecretSpec:
+                secretStoreRef:
+                  name: vault
+                  kind: ClusterSecretStore
+                target:
+                  name: maas-variables
+                  creationPolicy: Merge   # patch into an existing Secret, don't own it
+                  deletionPolicy: Merge   # on ES deletion, remove only ESO-managed keys
+                data:
+                  - secretKey: MAAS_API_KEY
+                    remoteRef:
+                      key: maas/api
+                      property: key
