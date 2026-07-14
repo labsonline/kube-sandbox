@@ -55,92 +55,14 @@ spec:
             enabled: true
             config:
               enableGatewayAPI: true
-      - template: ca-1-0-4
-        name: ca-issuer
-        namespace: cert-manager
-        # dependsOn:
-        #   - name: cert-manager
+      - template: eso-2-5-0
+        name: external-secret-operator
+        namespace: operators
+        dependsOn: []
         values: |
-          issuers:
-            - name: ca-issuer
-              clustered: true
-              type: acme
-              secret:
-                create: false
-                tsig: tsig-secret
-              acme:
-                email: kcm@testplay.io
-                server: https://vault.testplay.io:8200/v1/kcm/pki/acme/directory
-                zones:
-                  - {{ .Cluster.metadata.annotations.domain }}
-                provider:
-                  type: rfc2136
-                  nameserver: 192.168.2.10:53
-                  tsigAlgorithm: HMACSHA256
-                  tsigKeyName: certmanager
-                  tsigSecretSecretRef:
-                    name: tsig-secret
-                    key: secret
-      - template: gateway-1-0-3
-        name: gateway
-        namespace: kube-system
-        # dependsOn:
-        #   - name: envoy
-        #   - name: ca-issuer
-        #     namespace: cert-manager
-        values: |
-          gateways:
-            - name: http-gateway
-              className: envoy
-              listeners:
-                - name: http
-                  port: 80
-                  protocol: HTTP
-                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                    kinds:
-                      - kind: HTTPRoute
-                # - name: https
-                #   port: 443
-                #   protocol: HTTPS
-                #   hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
-                #   allowedRoutes:
-                #     namespaces:
-                #       from: All
-                #     kinds:
-                #       - kind: HTTPRoute
-                #   tls:
-                #     mode: Terminate
-                #     certificateRefs:
-                #       - name: https-gw-cert
-                #         issuer: ca-issuer
-            - name: tls-gateway
-              className: envoy
-              listeners:
-                - name: tls
-                  port: 443
-                  protocol: TLS
-                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                    kinds:
-                      - kind: TLSRoute
-                  tls:
-                    mode: Passthrough
-            - name: tcp-gateway
-              className: envoy
-              listeners:
-                - name: tcp
-                  port: 80
-                  protocol: TCP
-                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-                    kinds:
-                      - kind: TCPRoute
-      # TODO: externalsecret
-      # TODO: externaldns
+          eso:
+            enabled: true
+            replicaCount: 1
+            bitwarden-sdk-server:
+              enabled: false
+              namespaceOverride: ""

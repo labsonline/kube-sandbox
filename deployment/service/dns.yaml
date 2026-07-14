@@ -1,0 +1,43 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: core
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+  serviceSpec:
+    priority: 100
+    services:
+      - template: edns-1-19-0
+        name: external-dns
+        namespace: kube-system
+        # dependsOn:
+        #   - name: external-secret
+        #     namespace: sre
+        values: |
+          endpoints: []
+          externaldns:
+            enabled: true
+            txtOwnerId: mgmt
+            txtPrefix: kcm
+            provider:
+              name: rfc2136
+            domainFilters:
+              - {{ .Cluster.metadata.annotations.domain }}
+            env:
+              - name: EXTERNAL_DNS_RFC2136_TSIG_KEYNAME
+                value: externaldns
+              - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: tsig-secret
+                    key: secret
+            extraArgs:
+              # - --create-ptr
+              - --rfc2136-tsig-axfr
+              - --rfc2136-host=192.168.105.103
+              - --rfc2136-port=53
+              - --rfc2136-tsig-secret-alg=hmac-sha256
+              - --rfc2136-zone={{ .Cluster.metadata.annotations.domain }}

@@ -1,0 +1,42 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: ca-issuer
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+  serviceSpec:
+    priority: 100
+    services:
+      - template: ca-1-0-4
+        name: ca-issuer
+        namespace: cert-manager
+        # dependsOn:
+        #   - name: cert-manager
+        #   - name: envoy
+        #     namespace: kube-system
+        #   - name: vault
+        #     namespace: sre
+        values: |
+          issuers:
+            - name: ca-issuer
+              clustered: true
+              type: acme
+              secret:
+                create: false
+                tsig: tsig-secret
+              acme:
+                email: kcm@testplay.io
+                server: https://vault.sandbox.testplay.io/v1/sandbox/pki/acme/directory
+                zones:
+                  - {{ .Cluster.metadata.annotations.domain }}
+                provider:
+                  type: rfc2136
+                  nameserver: 192.168.105.103:53
+                  tsigAlgorithm: HMACSHA256
+                  tsigKeyName: certmanager
+                  tsigSecretSecretRef:
+                    name: tsig-secret
+                    key: secret

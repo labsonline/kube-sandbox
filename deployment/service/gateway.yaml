@@ -1,0 +1,99 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: gateway
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+  serviceSpec:
+    priority: 100
+    services:
+      - template: gateway-1-0-3
+        name: gateway
+        namespace: kube-system
+        # dependsOn:
+        #   - name: envoy
+        #   - name: ca-issuer
+        #     namespace: cert-manager
+        values: |
+          gateways:
+            - name: http-gateway
+              className: envoy
+              listeners:
+                - name: http
+                  port: 80
+                  protocol: HTTP
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: HTTPRoute
+                - name: https
+                  port: 443
+                  protocol: HTTPS
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: HTTPRoute
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - name: https-gw-cert
+                        issuer: ca-issuer
+            - name: tls-gateway
+              className: envoy
+              listeners:
+                - name: tls
+                  port: 443
+                  protocol: TLS
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: TLSRoute
+                  tls:
+                    mode: Passthrough
+            - name: tcp-gateway
+              className: envoy
+              listeners:
+                - name: tcp
+                  port: 80
+                  protocol: TCP
+                  hostname: "*.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: TCPRoute
+      # - template: gateway-1-0-3
+      #   name: hubble-http-route
+      #   namespace: kube-system
+      #   # dependsOn:
+      #   #   - name: envoy
+      #   #   - name: gateway
+      #   #   - name: ca-issuer
+      #   #     namespace: kcm-system
+      #   values: |
+      #     gateways: []
+      #     routes:
+      #       - name: hubble
+      #         kind: HTTPRoute
+      #         hostnames:
+      #           - "hubble-{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
+      #         rules:
+      #           - backendRefs:
+      #             - name: hubble-ui
+      #               port: 80
+      #           - filters:
+      #               - type: RequestRedirect
+      #                 requestRedirect:
+      #                   scheme: https
+      #                   statusCode: 301
+      #         gateways:
+      #           - name: http-gateway
