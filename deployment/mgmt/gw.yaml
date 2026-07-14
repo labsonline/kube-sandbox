@@ -29,33 +29,33 @@ spec:
                 - name: http
                   port: 80
                   protocol: HTTP
-                  hostname: "*.kcm.testplay.io"
+                  hostname: "*.sandbox.testplay.io"
                   allowedRoutes:
                     namespaces:
                       from: All
                     kinds:
                       - kind: HTTPRoute
-                # - name: https
-                #   port: 443
-                #   protocol: HTTPS
-                #   hostname: "*.kcm.testplay.io"
-                #   allowedRoutes:
-                #     namespaces:
-                #       from: All
-                #     kinds:
-                #       - kind: HTTPRoute
-                #   tls:
-                #     mode: Terminate
-                #     certificateRefs:
-                #       - name: https-gw-cert
-                #         issuer: ca-issuer
+                - name: https
+                  port: 443
+                  protocol: HTTPS
+                  hostname: "*.sandbox.testplay.io"
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+                    kinds:
+                      - kind: HTTPRoute
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - name: https-gw-cert
+                        issuer: ca-issuer
             - name: tls-gateway
               className: envoy
               listeners:
                 - name: tls
                   port: 443
                   protocol: TLS
-                  hostname: "*.kcm.testplay.io"
+                  hostname: "*.sandbox.testplay.io"
                   allowedRoutes:
                     namespaces:
                       from: All
@@ -63,34 +63,58 @@ spec:
                       - kind: TLSRoute
                   tls:
                     mode: Passthrough
+      - template: gateway-1-0-3
+        name: hubble-http-route
+        namespace: kube-system
+        # dependsOn:
+        #   - name: envoy
+        #   - name: ca-issuer
+        #     namespace: kcm-system
+        #   - name: gateway
+        values: |
+          gateways: []
           routes:
             - name: hubble
               kind: HTTPRoute
               hostnames:
-                - hubble.kcm.testplay.io
+                - hubble.sandbox.testplay.io
               rules:
                 - backendRefs:
                   - name: hubble-ui
                     port: 80
-                # - filters:
-                #     - type: RequestRedirect
-                #       requestRedirect:
-                #         scheme: https
-                #         statusCode: 301
+                - filters:
+                    - type: RequestRedirect
+                      requestRedirect:
+                        scheme: https
+                        statusCode: 301
               gateways:
                 - name: http-gateway
+      - template: gateway-1-0-3
+        name: kcm-http-route
+        namespace: kcm-system
+        # dependsOn:
+        #   - name: envoy
+        #   - name: ca-issuer
+        #     namespace: kcm-system
+        #   - name: gateway
+        #     namespace: kube-system
+        values: |
+          gateways: []
+          routes:
             - name: kcm
               kind: HTTPRoute
               hostnames:
-                - console.kcm.testplay.io
+                - console.sandbox.testplay.io
               rules:
                 - backendRefs:
                   - name: kcm-k0rdent-ui
+                    namespace: kcm-system
                     port: 3000
-                # - filters:
-                #     - type: RequestRedirect
-                #       requestRedirect:
-                #         scheme: https
-                #         statusCode: 301
+                - filters:
+                    - type: RequestRedirect
+                      requestRedirect:
+                        scheme: https
+                        statusCode: 301
               gateways:
                 - name: http-gateway
+                  namespace: kube-system
