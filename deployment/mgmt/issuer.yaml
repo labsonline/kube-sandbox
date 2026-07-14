@@ -29,22 +29,23 @@ spec:
               selfSigned: true
               secret:
                 create: false
-            # - name: ca-issuer
-            #   clustered: true
-            #   type: acme
-            #   secret:
-            #     create: false
-            #     tsig: tsig-secret
-            #   acme:
-            #     email: kcm@testplay.io
-            #     server: https://vault.testplay.io:8200/v1/kcm/pki/acme/directory
-            #     zones:
-            #       - kcm.testplay.io
-            #     provider:
-            #       type: rfc2136
-            #       nameserver: 192.168.2.10:53
-            #       tsigAlgorithm: HMACSHA256
-            #       tsigKeyName: certmanager
-            #       tsigSecretSecretRef:
-            #         name: tsig-secret
-            #         key: secret
+            - name: ca-issuer
+              certManagerNamespace: kcm-system
+              clustered: true
+              type: acme
+              secret:
+                create: false
+                tsig: tsig-secret
+              acme:
+                email: kcm@testplay.io
+                server: https://vault.sandbox.testplay.io/v1/sandbox/pki/acme/directory
+                zones:
+                  - sandbox.testplay.io
+                provider:
+                  type: rfc2136
+                  nameserver: 192.168.105.103:53
+                  tsigAlgorithm: HMACSHA256
+                  tsigKeyName: certmanager
+                  tsigSecretSecretRef:
+                    name: tsig-secret
+                    key: secret
