@@ -41,4 +41,4 @@ spec:
         deployment:
           containers:
             - name: manager
-              imageUrl: ghcr.io/labsonline/capi/cluster-api-provider-maas-controller:v1.0.0-arm64
+              imageUrl: ghcr.io/labsonline/capi/cluster-api-provider-maas-controller:v0.9.0
