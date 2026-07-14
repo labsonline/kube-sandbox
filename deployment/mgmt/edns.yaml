@@ -14,7 +14,6 @@ spec:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      # FIXME: externaldns
       - template: edns-1-19-0
         name: external-dns
         namespace: kube-system

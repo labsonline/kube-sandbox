@@ -68,9 +68,9 @@ spec:
         namespace: kube-system
         # dependsOn:
         #   - name: envoy
+        #   - name: gateway
         #   - name: ca-issuer
         #     namespace: kcm-system
-        #   - name: gateway
         values: |
           gateways: []
           routes:
@@ -94,10 +94,10 @@ spec:
         namespace: kcm-system
         # dependsOn:
         #   - name: envoy
-        #   - name: ca-issuer
-        #     namespace: kcm-system
         #   - name: gateway
         #     namespace: kube-system
+        #   - name: ca-issuer
+        #     namespace: kcm-system
         values: |
           gateways: []
           routes:
