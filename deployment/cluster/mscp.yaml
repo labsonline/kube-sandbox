@@ -3,6 +3,87 @@
 apiVersion: v1
 kind: Secret
 metadata:
+  name: mscp-base-userdata
+  namespace: default
+type: Opaque
+stringData:
+  value: |
+    #cloud-config
+    merge_how:
+      - name: list
+        settings: [append]
+      - name: dict
+        settings: [no_replace, recurse_list]
+    package_update: true
+    timezone: Etc/UTC
+    keyboard:
+      layout: us
+    ntp:
+      pools:
+        - 0.pool.ntp.org
+        - 1.pool.ntp.org
+        - 2.pool.ntp.org
+        - 3.pool.ntp.org
+    users:
+      - default
+      - name: rescue
+        hashed_passwd: ""
+        groups: adm, cdrom, sudo, dip, plugdev, lxd
+        shell: /bin/bash
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: false
+      - name: admin
+        primary_group: admin
+        groups: adm, cdrom, sudo, dip, plugdev, lxd
+        shell: /bin/bash
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: true
+        ssh_authorized_keys: []
+    packages:
+      - apparmor
+      - apt-transport-https
+      - ca-certificates
+      - cloud-init
+      - cron
+      - curl
+      - git
+      - gnupg
+      - gnupg-agent
+      - libseccomp2
+      - openssl
+      - python3
+      - software-properties-common
+      - util-linux
+      - vim
+      - wget
+    write_files:
+      - path: /usr/local/share/ca-certificates/ca.crt
+        permissions: "0644"
+        owner: root
+        content: ""
+      - path: /usr/lib/systemd/system/user@.service.d/delegate.conf
+        permissions: "0644"
+        owner: root
+        content: |
+          [Service]
+          Delegate=cpu cpuset io memory pids
+      - path: /etc/environment
+        permissions: "0644"
+        owner: root
+        content: |
+          PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+          EDITOR="vim"
+          PAGER="cat"
+      - path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+        permissions: "0644"
+        owner: root
+        content: |
+          network:
+            config: disabled
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: maas-cluster-identity-secret
   namespace: default
 ---
