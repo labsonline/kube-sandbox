@@ -105,15 +105,15 @@ metadata:
   name: mscp
   namespace: default
 spec:
-  template: maas-standalone-cp-0-1-2
+  template: maas-standalone-cp-0-1-3
   credential: mscp-cluster-cred
   dryRun: false
   config:
-    # controlPlaneEndpointIP: ""
+    controlPlaneEndpointIP: 192.168.105.111
     controlPlaneNumber: 1
     workersNumber: 0
-    clusterAnnotations:
-      domain: sandbox.testplay.io
+    # clusterAnnotations:
+    #   domain: ""
     # clusterLabels:
     #   app.kubernetes.io/knative: enabled
     #   app.kubernetes.io/addon: enabled
@@ -129,11 +129,14 @@ spec:
       minMemory: 8192
       resourcePool: ""
       tags: []
-    nameservers:
-      - 10.20.0.1
-      - 192.168.2.10
     maas:
-      dnsDomain: maas.sandbox.testplay.io
+      dnsDomain: ""
+    # preStartCommands:
+    #   - update-ca-certificates
+    customUserDataRef:
+      secretRef:
+        name: mscp-base-userdata
+        key: value
     k0s:
       version: v1.35.4+k0s.0
       arch: arm64
@@ -157,7 +160,7 @@ spec:
           cilium:
             enabled: true
             kubeProxyReplacement: true
-            # k8sServiceHost: ""
+            k8sServiceHost: ""
             k8sServicePort: 6443
             # ipv6:
             #   enabled: true
@@ -169,9 +172,7 @@ spec:
             #   ui:
             #     enabled: true
             # nodePort:
-            #   addresses:
-            #     - 192.168.105.0/24
-            #     - fd06:55a8:3996:1320::/64
+            #   addresses: []
             # bpf:
             #   hostLegacyRouting: true
             # bgp:
@@ -197,19 +198,19 @@ spec:
             #       peers:
             #         - name: frrv4
             #           peerASN: 64513
-            #           peerAddress: 192.168.105.103
+            #           peerAddress: ""
             #           peerConfigRef:
             #             name: bgp-peer-config
             #         - name: frrv6
             #           peerASN: 64513
-            #           peerAddress: fd06:55a8:3996:1320:5654:ff:fed8:493c
+            #           peerAddress: ""
             #           peerConfigRef:
             #             name: bgp-peer-config
             # pool:
             #   enabled: true
             #   blocks:
-            #     - cidr: 172.40.0.0/24
-            #     - cidr: fd40:ff::/64
+            #     - cidr: ""
+            #     - cidr: ""
       - name: openebs
         namespace: kube-system
         template: csi-1-0-7
