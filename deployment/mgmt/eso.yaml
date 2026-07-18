@@ -78,6 +78,47 @@ spec:
                         namespace: sre
                         key: secret-id
           externalSecrets:
+            - kind: ClusterExternalSecret
+              name: root-ca
+              matchLabels:
+                rootca: enabled
+              externalSecretSpec:
+                secretStoreRef:
+                  name: vault
+                  kind: ClusterSecretStore
+                target:
+                  name: root-ca
+                data:
+                  - secretKey: ca.crt
+                    remoteRef:
+                      key: ca
+                      property: ca.crt
+            - kind: ClusterExternalSecret
+              name: base-userdata
+              matchLabels:
+                cloudinit: enabled
+              externalSecretSpec:
+                secretStoreRef:
+                  name: vault
+                  kind: ClusterSecretStore
+                target:
+                  name: base-userdata
+                  template:
+                    engineVersion: v2
+                    data:
+                      value: |
+                        #cloud-config
+                        merge_how:
+                          - name: list
+                            settings: [append]
+                          - name: dict
+                            settings: [no_replace, recurse_list]
+                        {{ .userdata }}
+                data:
+                  - secretKey: userdata
+                    remoteRef:
+                      key: cloudinit
+                      property: userdata
             - kind: ExternalSecret
               name: tsig-secret
               namespace: kcm-system

@@ -20,7 +20,7 @@ kind: ClusterDeployment
 metadata:
   name: mhcp
 spec:
-  template: maas-standalone-cp-0-1-2
+  template: maas-hosted-cp-0-1-4
   credential: mhcp-cluster-cred
   dryRun: false
   config:
@@ -46,12 +46,38 @@ spec:
       tags: []
     maas:
       dnsDomain: ""
-    # preStartCommands:
-    #   # - update-ca-certificates
-    # customUserDataRef:
-    #   secretRef:
-    #     name: mscp-base-userdata
-    #     key: value
+    preStartCommands:
+      - update-ca-certificates
+    # Files are delivered via k0smotron (k0sConfigSpec.files) instead of write_files in the
+    # custom userdata: k0smotron appends the userdata as plain text to its generated
+    # cloud-config, so a top-level write_files key there clobbers the k0s bootstrap files
+    extraFiles:
+      - path: /usr/local/share/ca-certificates/ca.crt
+        permissions: "0644"
+        contentFrom:
+          secretRef:
+            name: root-ca
+            key: ca.crt
+      - path: /usr/lib/systemd/system/user@.service.d/delegate.conf
+        permissions: "0644"
+        content: |
+          [Service]
+          Delegate=cpu cpuset io memory pids
+      - path: /etc/environment
+        permissions: "0644"
+        content: |
+          PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+          EDITOR="vim"
+          PAGER="cat"
+      - path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+        permissions: "0644"
+        content: |
+          network:
+            config: disabled
+    customUserDataRef:
+      secretRef:
+        name: base-userdata
+        key: value
     k0s:
       version: v1.35.4+k0s.0
       arch: arm64
@@ -60,7 +86,8 @@ spec:
       api:
         extraArgs: {}
       cpArgs: []
-      workerArgs: []
+      workerArgs:
+        - --kubelet-extra-args="--fail-cgroupv1=false"
   serviceSpec:
     services:
       - name: cilium
