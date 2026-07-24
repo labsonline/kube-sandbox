@@ -10,4 +10,4 @@ spec:
     - name: edns-1-19-0
     - name: eso-2-5-0
     - name: gateway-1-0-3
-    - name: gwapi-1-0-3
+    - name: gwapi-1-0-4

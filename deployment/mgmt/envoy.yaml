@@ -14,7 +14,7 @@ spec:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      - template: gwapi-1-0-3
+      - template: gwapi-1-0-4
         name: envoy
         namespace: kube-system
         values: |

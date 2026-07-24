@@ -10,7 +10,7 @@ spec:
   serviceSpec:
     priority: 100
     services:
-      - template: gwapi-1-0-3
+      - template: gwapi-1-0-4
         name: envoy
         namespace: kube-system
         values: |
