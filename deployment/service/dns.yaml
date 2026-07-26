@@ -2,15 +2,16 @@
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: MultiClusterService
 metadata:
-  name: core
+  name: dns
 spec:
   clusterSelector:
     matchLabels:
       app.kubernetes.io/managed-by: Helm
+  dependsOn: []
   serviceSpec:
     priority: 100
     services:
-      - template: edns-1-19-0
+      - template: edns-1-21-1
         name: external-dns
         namespace: kube-system
         # dependsOn:
@@ -25,7 +26,8 @@ spec:
             provider:
               name: rfc2136
             domainFilters:
-              - {{ .Cluster.metadata.annotations.domain }}
+              - {{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}
+              - "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
             env:
               - name: EXTERNAL_DNS_RFC2136_TSIG_KEYNAME
                 value: externaldns
