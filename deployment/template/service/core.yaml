@@ -6,8 +6,9 @@ metadata:
   namespace: kcm-system
 spec:
   supportedTemplates:
-    - name: ca-1-0-4
-    - name: edns-1-19-0
-    - name: eso-2-5-0
+    - name: ca-1-0-6
+    - name: edns-1-21-1
+    - name: eso-2-8-0
     - name: gateway-1-0-3
-    - name: gwapi-1-0-4
+    - name: gwapi-1-0-5
+    - name: operator-1-0-3

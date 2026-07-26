@@ -6,4 +6,4 @@ metadata:
   namespace: kcm-system
 spec:
   supportedTemplates:
-    - name: cni-1-0-7
+    - name: cni-1-0-8
