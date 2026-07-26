@@ -1,0 +1,21 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: cruiser
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: cruiser
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: rabbitmq
+      # TODO: knative
+      # - template: knative-1-22-3
+      #   name: knative
+      #   namespace: knative-system
+      #   dependsOn: []
+      #   values: ""

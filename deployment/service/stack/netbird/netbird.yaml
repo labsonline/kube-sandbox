@@ -1,0 +1,20 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: netbird
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: netbird
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: netbird
+      # - template: netbird-0.8.0
+      #   name: coder
+      #   namespace: netbird-system
+      #   dependsOn: []
+      #   values: ""

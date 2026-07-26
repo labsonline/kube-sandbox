@@ -1,0 +1,26 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: openstack
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: openstack
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: aistor
+      # - template: aistor-1-0-0
+      #   name: aistor
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""
+      # TODO: openstack
+      # - template: openstack-1-0-3
+      #   name: openstack
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""

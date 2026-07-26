@@ -1,0 +1,39 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: harbor
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: harbor
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: grafana
+      # TODO: ldap
+      # - template: ldap-2026-1-0
+      #   name: netbox
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""
+      # TODO: container-registry
+      # - template: msr-4-13-6
+      #   name: container-registry
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""
+      # TODO: netbox
+      # - template: netbox-8-3-38
+      #   name: netbox
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""
+      # TODO: vault
+      # - template: vault-0-28-6
+      #   name: vault
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""

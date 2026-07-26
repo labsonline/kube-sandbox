@@ -1,0 +1,21 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: kubevirt
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: kubevirt
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: aistor
+      # - template: aistor-1-0-0
+      #   name: aistor
+      #   namespace: ucp
+      #   dependsOn: []
+      #   values: ""
+      # TODO: kubevirt

@@ -1,0 +1,17 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: monitoring
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: monitoring
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: loki
+      # TODO: prometheus
+      # TODO: tempo

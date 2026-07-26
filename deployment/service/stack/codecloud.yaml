@@ -1,0 +1,22 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: code-cloud
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: code-cloud
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services: []
+      # TODO: coder
+      # - template: coder-2-35-2
+      #   name: coder
+      #   namespace: code-cloud
+      #   dependsOn: []
+      #   values: ""
+      # TODO: gitea
+      # TODO: sonarqube
