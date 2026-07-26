@@ -39,7 +39,7 @@ spec:
                   level:
                     default: info
                 extensionApis: {}
-      - template: ca-1-0-4
+      - template: ca-1-0-6
         name: cert-manager
         namespace: cert-manager
         # dependsOn:
@@ -56,7 +56,7 @@ spec:
             enabled: true
             config:
               enableGatewayAPI: true
-      - template: eso-2-5-0
+      - template: eso-2-8-0
         name: external-secret-operator
         namespace: operators
         dependsOn: []
