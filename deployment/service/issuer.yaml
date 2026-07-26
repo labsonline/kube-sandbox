@@ -28,13 +28,14 @@ spec:
                 create: false
                 tsig: tsig-secret
               acme:
-                email: kcm@testplay.io
+                email: "{{ .Cluster.metadata.name }}@{{ .Cluster.metadata.annotations.domain }}"
                 server: https://vault.sandbox.testplay.io/v1/sandbox/pki/acme/directory
                 zones:
-                  - {{ .Cluster.metadata.annotations.domain }}
+                  - {{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}
+                  - "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
                 provider:
                   type: rfc2136
-                  nameserver: 192.168.105.103:53
+                  nameserver: {{ .Cluster.metadata.annotations.nameserver }}:53
                   tsigAlgorithm: HMACSHA256
                   tsigKeyName: certmanager
                   tsigSecretSecretRef:
