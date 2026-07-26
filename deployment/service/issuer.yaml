@@ -7,10 +7,11 @@ spec:
   clusterSelector:
     matchLabels:
       app.kubernetes.io/managed-by: Helm
+  dependsOn: []
   serviceSpec:
     priority: 100
     services:
-      - template: ca-1-0-4
+      - template: ca-1-0-6
         name: ca-issuer
         namespace: cert-manager
         # dependsOn:
