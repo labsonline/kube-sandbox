@@ -28,7 +28,7 @@ spec:
               enabled: false
               namespaceOverride: ""
       # FIXME: externalsecret
-      - template: eso-2-5-0
+      - template: eso-2-8-0
         name: external-secret
         namespace: sre
         # dependsOn:
