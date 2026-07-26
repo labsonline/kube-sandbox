@@ -1,0 +1,38 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: cloudflare
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: cloudflare
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services:
+      - template: ca-1-0-6
+        name: cloudflare-ca-issuer
+        namespace: cloudflare-system
+        # dependsOn:
+        #   - name: cert-manager
+        #     namespace: cert-manager # cert-manager namespace
+        values: |
+          issuers:
+            - name: cloudflare-ca-issuer
+              clustered: false
+              type: acme
+              secret:
+                create: false
+              acme:
+                email: "{{ .Cluster.metadata.name }}@{{ .Cluster.metadata.annotations.domain }}"
+                server: https://acme-v02.api.letsencrypt.org/directory
+                zones:
+                  - {{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}
+                  - "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
+                provider:
+                  type: cloudflare
+                  apiTokenSecretRef:
+                    name: ca-secret-cloudflare
+                    key: token
