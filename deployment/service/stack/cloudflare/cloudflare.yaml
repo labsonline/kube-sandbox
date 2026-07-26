@@ -1,0 +1,27 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: cloudflare
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: cloudflare
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services:
+      - template: gwapi-1-0-5
+        name: cloudflare-tunnel-gateway-controller
+        namespace: cloudflare-system
+        dependsOn: []
+        values: |
+          envoy:
+            enabled: false
+          cloudflare:
+            enabled: true
+            gatewayClassConfig:
+              create: true
+              accountId: {{ .Cluster.metadata.annotations.cloudflare-account-id }}
+              tunnelID: {{ .Cluster.metadata.annotations.cloudflare-tunnel-id }}
