@@ -7,6 +7,7 @@ spec:
   clusterSelector:
     matchLabels:
       app.kubernetes.io/managed-by: Helm
+  dependsOn: []
   serviceSpec:
     priority: 100
     services:
