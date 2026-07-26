@@ -2,22 +2,22 @@
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: MultiClusterService
 metadata:
-  name: mgmt-vault
+  name: mgmt-monitoring
 spec:
   clusterSelector:
     matchLabels:
       k0rdent.mirantis.com/management-cluster: "true"
       sveltos-agent: present
+  dependsOn: []
   serviceSpec:
     priority: 100
     provider:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      - template: vault-0.23.5
-        name: vault
-        namespace: ucp
-        # dependsOn:
-        #   - name: envoy
-        #     namespace: kube-system
-        values: ""
+      # TODO: monitoring
+      # - template: monitoring-4-3-1
+      #   name: monitoring
+      #   namespace: kube-system
+      #   dependsOn: []
+      #   values: ""
