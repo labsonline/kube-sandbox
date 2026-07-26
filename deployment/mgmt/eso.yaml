@@ -9,13 +9,14 @@ spec:
     matchLabels:
       k0rdent.mirantis.com/management-cluster: "true"
       sveltos-agent: present
+  dependsOn: []
   serviceSpec:
     priority: 100
     provider:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      - template: eso-2-5-0
+      - template: eso-2-8-0
         name: external-secret-operator
         namespace: operators
         dependsOn: []

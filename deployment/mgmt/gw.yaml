@@ -9,6 +9,7 @@ spec:
     matchLabels:
       k0rdent.mirantis.com/management-cluster: "true"
       sveltos-agent: present
+  dependsOn: []
   serviceSpec:
     priority: 100
     provider:

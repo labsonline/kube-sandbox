@@ -9,13 +9,14 @@ spec:
     matchLabels:
       k0rdent.mirantis.com/management-cluster: "true"
       sveltos-agent: present
+  dependsOn: []
   serviceSpec:
     priority: 100
     provider:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      - template: ca-1-0-4
+      - template: ca-1-0-6
         name: ca-issuer
         namespace: kcm-system
         # dependsOn:

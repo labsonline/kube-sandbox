@@ -9,13 +9,14 @@ spec:
     matchLabels:
       k0rdent.mirantis.com/management-cluster: "true"
       sveltos-agent: present
+  dependsOn: []
   serviceSpec:
     priority: 100
     provider:
       name: ksm-projectsveltos
       selfManagement: true
     services:
-      - template: edns-1-19-0
+      - template: edns-1-21-1
         name: external-dns
         namespace: kube-system
         # dependsOn:
