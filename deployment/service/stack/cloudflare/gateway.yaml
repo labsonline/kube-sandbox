@@ -1,0 +1,83 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: cloudflare
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: cloudflare
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services:
+      - template: gateway-1-0-3
+        name: cloudflare-gateway
+        namespace: cloudflare-system
+        # dependsOn:
+        #   - name: envoy
+        #     namespace: kube-system
+        #   - name: cloudflare-ca-issuer
+        values: |
+          gateways:
+            - name: http-gateway
+              className: cloudflare
+              listeners:
+                - name: http
+                  port: 80
+                  protocol: HTTP
+                  allowedRoutes:
+                    namespaces:
+                      from: Selector
+                      selector:
+                        matchLabels:
+                          gateway: cloudflare
+                - name: https
+                  port: 443
+                  protocol: HTTPS
+                  hostname: "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: Selector
+                      selector:
+                        matchLabels:
+                          gateway: cloudflare
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - name: cloudflare-http-gw-cert
+                        issuer: cloudflare-ca-issuer
+                        type: ClusterIssuer
+            - name: grpc-gateway
+              className: cloudflare
+              listeners:
+                - name: http
+                  port: 80
+                  protocol: HTTP
+                  allowedRoutes:
+                    namespaces:
+                      from: Selector
+                      selector:
+                        matchLabels:
+                          gateway: cloudflare
+                    kinds:
+                      - kind: GRPCRoute
+                - name: grpc
+                  port: 443
+                  protocol: HTTPS
+                  hostname: "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
+                  allowedRoutes:
+                    namespaces:
+                      from: Selector
+                      selector:
+                        matchLabels:
+                          gateway: cloudflare
+                    kinds:
+                      - kind: GRPCRoute
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - name: cloudflare-grpc-gw-cert
+                        issuer: cloudflare-ca-issuer
+                        type: ClusterIssuer
