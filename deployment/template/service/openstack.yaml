@@ -1,0 +1,9 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: openstack
+  namespace: kcm-system
+spec:
+  supportedTemplates:
+    - name: openstack-1-0-3

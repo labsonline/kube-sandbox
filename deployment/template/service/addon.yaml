@@ -1,0 +1,21 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: ServiceTemplateChain
+metadata:
+  name: addon
+  namespace: kcm-system
+spec:
+  # TODO: gitea
+  # TODO: lgtm
+  # TODO: sonarqube
+  supportedTemplates:
+    - name: aistor-1-0-0
+    - name: coder-2-35-2
+    - name: gatekeeper-3-23-0
+    - name: knative-1-22-3
+    - name: ldap-2026-1-0
+    - name: monitoring-4-3-1
+    - name: msr-4-13-6
+    - name: netbird-0.8.0
+    - name: netbox-8-3-38
+    - name: vault-0-28-6
