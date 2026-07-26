@@ -1,0 +1,24 @@
+# FIXME: update hard-coded values with cluster annotations
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: mgmt-gatekeeper
+spec:
+  clusterSelector:
+    matchLabels:
+      k0rdent.mirantis.com/management-cluster: "true"
+      sveltos-agent: present
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    provider:
+      name: ksm-projectsveltos
+      selfManagement: true
+    services:
+      # TODO: gatekeeper
+      # - template: gatekeeper-3-23-0
+      #   name: gatekeeper
+      #   namespace: kube-system
+      #   dependsOn: []
+      #   values: ""
