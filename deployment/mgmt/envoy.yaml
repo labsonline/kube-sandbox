@@ -1,3 +1,5 @@
+
+# FIXME: update hard-coded values with cluster annotations
 ---
 apiVersion: k0rdent.mirantis.com/v1beta1
 kind: MultiClusterService
