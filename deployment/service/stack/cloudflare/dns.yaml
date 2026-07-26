@@ -1,0 +1,41 @@
+---
+apiVersion: k0rdent.mirantis.com/v1beta1
+kind: MultiClusterService
+metadata:
+  name: cloudflare
+spec:
+  clusterSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: Helm
+      multi-cluster-service: cloudflare
+  dependsOn: []
+  serviceSpec:
+    priority: 100
+    services:
+      - template: edns-1-21-1
+        name: cloudflare-external-dns
+        namespace: cloudflare-system
+        # dependsOn:
+        #   - name: external-secret
+        #     namespace: sre
+        values: |
+          endpoints: []
+          externaldns:
+            enabled: true
+            policy: sync
+            sources:
+              - gateway-grpcroute
+              - gateway-httproute
+            domainFilters:
+              - {{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}
+              - "*.{{ .Cluster.metadata.name }}.{{ .Cluster.metadata.annotations.domain }}"
+            env:
+              - name: CF_API_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-api-key
+                    key: apiKey
+            provider:
+              name: cloudflare
+            extraArgs:
+              - --cloudflare-proxied
